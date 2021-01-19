@@ -15,10 +15,10 @@ import sys
 
 class Ui_MplMainWindow(object):
     def __init__(self):
-        self.Algorithm2String = QtWidgets.QLabel(self.SettingsBox)
-        self.centralwidget = QtWidgets.QWidget(MplMainWindow)
-        self.mplwidget = MplWidget(self.centralwidget)
+        self.centralwidget = QtWidgets.QWidget()
         self.SettingsBox = QtWidgets.QGroupBox(self.centralwidget)
+        self.mplwidget = MplWidget(self.centralwidget)
+        self.Algorithm2String = QtWidgets.QLabel(self.SettingsBox)
         self.SettingsString = QtWidgets.QLabel(self.SettingsBox)
         self.SimulationEnvString = QtWidgets.QLabel(self.SettingsBox)
         self.AlgorithmTypeString = QtWidgets.QLabel(self.SettingsBox)
@@ -67,6 +67,7 @@ class Ui_MplMainWindow(object):
     def setupUi(self, MplMainWindow):
         MplMainWindow.setObjectName("MplMainWindow")
         MplMainWindow.resize(1920, 1080)
+        MplMainWindow.setWindowTitle("Schedule Simulator")
         self.centralwidget.setObjectName("centralwidget")
         self.mplwidget.setGeometry(QtCore.QRect(11, 11, 1611, 1058))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
