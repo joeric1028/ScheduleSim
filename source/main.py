@@ -12,17 +12,17 @@ from source.Algorithms.NonRealTime.ShortestJobFirst import *
 
 class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(DesignerMainWindow, self).__init__(parent)
         self.setupUi(self)
 
-        #self.MultithreadingRadio.clicked.connect(self.check)
-        #self.MultiprocessingRadio.clicked.connect(self.check)
+        # self.MultithreadingRadio.clicked.connect(self.check)
+        # self.MultiprocessingRadio.clicked.connect(self.check)
         self.StaticAlgorithmRadio.clicked.connect(self.update_algo_list)
         self.DynamicAlgorithmRadio.clicked.connect(self.update_algo_list)
         self.RandomizedDataRadio.clicked.connect(self.disable_prop_options)
         self.CustomDataRadio.clicked.connect(self.disable_prop_options)
-        #self.StartSimulationButton.clicked(self.start_simulation)
+        # self.StartSimulationButton.clicked(self.start_simulation)
         self.RunsSpinBox.setMaximum(3)
         self.ProcessesSpinBox.setMaximum(5)
 
@@ -58,10 +58,11 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
             quantum = random.randint(0, 10)
             processData = []
             waitRR = []
-            #for i in range:
+            # for i in range:
 
-    #def start_simulation(self):
-        #if self.RandomizedDataRadio.isChecked():
+    # def start_simulation(self):
+    # if self.RandomizedDataRadio.isChecked():
+
 
 app = QtWidgets.QApplication(sys.argv)
 dmw = DesignerMainWindow()
