@@ -70,7 +70,8 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
     # if self.RandomizedDataRadio.isChecked():
 
 
-app = QtWidgets.QApplication(sys.argv)
-dmw = DesignerMainWindow()
-dmw.show()
-sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    dmw = DesignerMainWindow()
+    dmw.show()
+    sys.exit(app.exec_())
