@@ -3,3 +3,4 @@ Numpy==1.19.3
 setuptools~=51.0.0
 PyQT5==5.15.2
 PyQt5-stubs==5.14.2.2
+schedule==0.6.0

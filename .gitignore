@@ -131,8 +131,8 @@ dmypy.json
 .idea/
 /shelf/
 /workspace.xml
+/source/log.txt
 /log.txt
-
 
 # This file is used to ignore files which are generated on QT
 # ----------------------------------------------------------------------------
@@ -205,4 +205,3 @@ Thumbs.db
 # --------
 *.dll
 *.exe
-

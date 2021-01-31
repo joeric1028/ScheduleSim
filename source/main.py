@@ -5,9 +5,15 @@ import random
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
-from source.UI.schedulesim_ui import Ui_MplMainWindow
-from source.Algorithms.NonRealTime.RoundRobin import *
-from source.Algorithms.NonRealTime.ShortestJobFirst import *
+from source.Library.UI.schedulesim_ui import Ui_MplMainWindow
+from source.Library.Algorithms.NonRealTime.RoundRobin import *
+import logging
+
+logging.basicConfig(filename='log.txt', level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %('
+                           'message)s')
+
+logger = logging.getLogger(__name__)
 
 
 class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
@@ -64,7 +70,8 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
     # if self.RandomizedDataRadio.isChecked():
 
 
-app = QtWidgets.QApplication(sys.argv)
-dmw = DesignerMainWindow()
-dmw.show()
-sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    dmw = DesignerMainWindow()
+    dmw.show()
+    sys.exit(app.exec_())
