@@ -55,7 +55,6 @@ class EarliestDeadlineFirst:
 
             print("LCM: ", lcm)
 
-            i = 0
             instances = []
             for i in range(self.nooftasks):
                 j = 1
@@ -137,7 +136,6 @@ class EarliestDeadlineFirst:
             print()
 
             mn = 0
-            mx = 0
 
             for i in range(lcm):
                 if i > 0 and timeLine[i] != timeLine[i - 1]:
