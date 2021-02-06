@@ -22,17 +22,20 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
         super(DesignerMainWindow, self).__init__(parent)
         self.setupUi(self)
 
-        # self.MultithreadingRadio.clicked.connect(self.check)
-        # self.MultiprocessingRadio.clicked.connect(self.check)
+        self.MultithreadingRadio.clicked.connect(self.start_simulation_button)
+        self.MultiprocessingRadio.clicked.connect(self.start_simulation_button)
         self.StaticAlgorithmRadio.clicked.connect(self.update_algo_list)
         self.DynamicAlgorithmRadio.clicked.connect(self.update_algo_list)
         self.RandomizedDataRadio.clicked.connect(self.disable_prop_options)
         self.CustomDataRadio.clicked.connect(self.disable_prop_options)
-        # self.StartSimulationButton.clicked(self.start_simulation)
+        self.StartSimulationButton.clicked.connect(self.start_simulation)
+
         self.RunsSpinBox.setMaximum(3)
         self.ProcessesSpinBox.setMaximum(5)
+        self.start_simulation_button()
 
     def update_algo_list(self):
+
         if self.StaticAlgorithmRadio.isChecked():
             self.AlgorithmSelector.clear()
             self.Algorithm2Selector.clear()
@@ -43,6 +46,8 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
             self.Algorithm2Selector.clear()
             self.AlgorithmSelector.addItems(['Rate Monotonic Scheduling', 'Earliest Deadline First'])
             self.Algorithm2Selector.addItems(['Rate Monotonic Scheduling', 'Earliest Deadline First'])
+
+        self.start_simulation_button()
 
     def disable_prop_options(self):
         if self.RandomizedDataRadio.isChecked():
@@ -58,6 +63,8 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
             self.ArrivalGroup.setEnabled(True)
             self.BurstGroup.setEnabled(True)
 
+        self.start_simulation_button()
+
     def generate_random_data(self):
         if self.AlgorithmSelector.currentText() == 'Round-Robin':
             rr = RoundRobin()
@@ -66,8 +73,19 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
             waitRR = []
             # for i in range:
 
-    # def start_simulation(self):
-    # if self.RandomizedDataRadio.isChecked():
+    def start_simulation(self):
+        pass
+
+    def start_simulation_button(self):
+        if (self.MultithreadingRadio.isChecked() or self.MultiprocessingRadio.isChecked()) and \
+                (self.StaticAlgorithmRadio.isChecked() or self.DynamicAlgorithmRadio.isChecked()) and \
+                (self.AlgorithmSelector.currentIndex() != -1 or self.Algorithm2Selector.currentIndex() != -1) and \
+                (self.CustomDataRadio.isChecked() or self.RandomizedDataRadio.isChecked()):
+            self.StartSimulationButton.setEnabled(True)
+            self.StartSimulationButton.setStyleSheet("background-color: rgb(255, 0, 0);color: rgb(255, 255, 255);")
+        else:
+            self.StartSimulationButton.setDisabled(True)
+            self.StartSimulationButton.setStyleSheet("")
 
 
 if __name__ == "__main__":
