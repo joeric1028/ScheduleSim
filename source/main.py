@@ -17,22 +17,26 @@ logger = logging.getLogger(__name__)
 
 
 class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
-
     def __init__(self, parent=None):
         super(DesignerMainWindow, self).__init__(parent)
         self.setupUi(self)
 
-        self.MultithreadingRadio.clicked.connect(self.start_simulation_button)
-        self.MultiprocessingRadio.clicked.connect(self.start_simulation_button)
+        self.MultithreadingRadio.clicked.connect(self.data_verification)
+        self.MultiprocessingRadio.clicked.connect(self.data_verification)
         self.StaticAlgorithmRadio.clicked.connect(self.update_algo_list)
         self.DynamicAlgorithmRadio.clicked.connect(self.update_algo_list)
         self.RandomizedDataRadio.clicked.connect(self.disable_prop_options)
         self.CustomDataRadio.clicked.connect(self.disable_prop_options)
         self.StartSimulationButton.clicked.connect(self.start_simulation)
 
+        self.LoadPropertiesButton.clicked.connect(self.load_data)
+
+        self.setWindowTitle("Schedule Simulator v0.01")
         self.RunsSpinBox.setMaximum(3)
         self.ProcessesSpinBox.setMaximum(5)
-        self.start_simulation_button()
+        self.data_verification()
+
+        self.data = []
 
     def update_algo_list(self):
 
@@ -47,7 +51,7 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
             self.AlgorithmSelector.addItems(['Rate Monotonic Scheduling', 'Earliest Deadline First'])
             self.Algorithm2Selector.addItems(['Rate Monotonic Scheduling', 'Earliest Deadline First'])
 
-        self.start_simulation_button()
+        self.data_verification()
 
     def disable_prop_options(self):
         if self.RandomizedDataRadio.isChecked():
@@ -63,20 +67,45 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
             self.ArrivalGroup.setEnabled(True)
             self.BurstGroup.setEnabled(True)
 
-        self.start_simulation_button()
+        self.data_verification()
 
     def generate_random_data(self):
-        if self.AlgorithmSelector.currentText() == 'Round-Robin':
-            rr = RoundRobin()
-            quantum = random.randint(0, 10)
-            processData = []
-            waitRR = []
-            # for i in range:
+        if self.RandomizedDataRadio.isChecked():
+            testrun = random.randint(1, 3)
+            if self.StaticAlgorithmRadio.isChecked():
+                if self.AlgorithmSelector.currentIndex(0):  # Round Robin
+                    quantum = random.randint(0, 10)
+                    processdata = []
+                    for i in range(testrun):
+                        temp_rr = []
+                        process_id = i + 1
+                        arrival_time = random.randint(0, 100000)
+                        burst_time = random.randint(0, 75000)
+                        temp_rr.extend([process_id, arrival_time, burst_time, 0, burst_time])
+                        processdata.append(temp_rr)
+                elif self.AlgorithmSelector.currentIndex(1):  # Shortest Job First
+                    processdata = []
+                    for i in range(testrun):
+                        temp_sjf = []
+                        process_id = i + 1
+                        arrival_time = random.randint(0, 100000)
+                        burst_time = random.randint(0, 75000)
+                        temp_sjf.extend([process_id, arrival_time, burst_time, 0])
+                        processdata.append(temp_sjf)
+            elif self.DynamicAlgorithmRadio.isChecked():
+                if self.Algorithm2Selector.currentIndex(0):  # Rate Monotonic Scheduling
+                    rr = RoundRobin()
+                    quantum = random.randint(0, 10)
+                    processData = []
+                    waitRR = []
+                    # for i in range:
+                elif self.Algorithm2Selector.currentIndex(1):  # Earliest Deadline First
+                    pass
 
     def start_simulation(self):
         pass
 
-    def start_simulation_button(self):
+    def data_verification(self):
         if (self.MultithreadingRadio.isChecked() or self.MultiprocessingRadio.isChecked()) and \
                 (self.StaticAlgorithmRadio.isChecked() or self.DynamicAlgorithmRadio.isChecked()) and \
                 (self.AlgorithmSelector.currentIndex() != -1 or self.Algorithm2Selector.currentIndex() != -1) and \
@@ -86,6 +115,20 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
         else:
             self.StartSimulationButton.setDisabled(True)
             self.StartSimulationButton.setStyleSheet("")
+
+    def load_data(self):
+        data = QtWidgets.QFileDialog(parent=self)
+        data.setFileMode(QtWidgets.QFileDialog.ExistingFile)
+        data.setViewMode(QtWidgets.QFileDialog.List)
+        data.setNameFilter(self.tr("Save File (*.sav)"))
+        directory = QtCore.QStandardPaths.standardLocations(QtCore.QStandardPaths.DocumentsLocation)
+        data.setDirectory(directory[0])
+        if data.exec():
+            filename = data.selectedFiles()
+            File = QtCore.QFile(parent=self, name=filename[0])
+            if not File.open(QtCore.QIODevice.ReadOnly):
+                logging.warning(f"Error opening File: {filename}")
+                return
 
 
 if __name__ == "__main__":
