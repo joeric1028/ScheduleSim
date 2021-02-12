@@ -8,6 +8,7 @@ from PyQt5 import QtWidgets
 from source.Library.UI.schedulesim_ui import Ui_MplMainWindow
 from source.Library.Algorithms.NonRealTime.RoundRobin import *
 import logging
+import json
 
 logging.basicConfig(filename='log.txt', level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %('
@@ -28,6 +29,13 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
         self.RandomizedDataRadio.clicked.connect(self.disable_prop_options)
         self.CustomDataRadio.clicked.connect(self.disable_prop_options)
         self.StartSimulationButton.clicked.connect(self.start_simulation)
+
+        self.MultithreadingRadio.toggled.connect(self.data_verification)
+        self.MultiprocessingRadio.toggled.connect(self.data_verification)
+        self.StaticAlgorithmRadio.toggled.connect(self.update_algo_list)
+        self.DynamicAlgorithmRadio.toggled.connect(self.update_algo_list)
+        self.RandomizedDataRadio.toggled.connect(self.disable_prop_options)
+        self.CustomDataRadio.toggled.connect(self.disable_prop_options)
 
         self.LoadPropertiesButton.clicked.connect(self.load_data)
 
@@ -125,10 +133,50 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
         data.setDirectory(directory[0])
         if data.exec():
             filename = data.selectedFiles()
-            File = QtCore.QFile(parent=self, name=filename[0])
-            if not File.open(QtCore.QIODevice.ReadOnly):
+            datafile = open(filename[0], "r")
+            if not datafile.errors:
+                datafile.close()
                 logging.warning(f"Error opening File: {filename}")
+                message = QtWidgets.QMessageBox(parent=self)
+                message.setText(f"Error opening File: {filename}")
+                message.setWindowTitle(self.windowTitle())
+                message.setIcon(QtWidgets.QMessageBox.Warning)
+                message.setStandardButtons(QtWidgets.QMessageBox.Ok)
+                message.exec()
                 return
+
+            jsondata = json.loads(datafile.read())
+            datafile.close()
+
+            if int(jsondata["simulationmode"]) == 0:
+                self.MultithreadingRadio.setChecked(True)
+            else:
+                self.MultiprocessingRadio.setChecked(True)
+
+            if int(jsondata["algorithmtype"]) == 0:
+                self.StaticAlgorithmRadio.setChecked(True)
+            else:
+                self.DynamicAlgorithmRadio.setChecked(True)
+
+            self.AlgorithmSelector.setCurrentIndex(int(jsondata["algorithm1"]))
+            self.Algorithm2Selector.setCurrentIndex(int(jsondata["algorithm2"]))
+
+            if int(jsondata["simulationconfig"]) == 0:
+                self.CustomDataRadio.setChecked(True)
+                if jsondata["data"] is not None:
+                    self.RunsSpinBox.setValue(int(jsondata["data"]["runs"]))
+                    self.ProcessesSpinBox.setValue(int(jsondata["data"]["processes"]))
+                    self.TimeQuantumSpinBox.setValue(int(jsondata["data"]["timequantum"]))
+                    self.ArrivalTimesValueBox.setPlainText(str(jsondata["data"]["arrivaltimes"]))
+                    self.BurstTimesValueBox.setPlainText(str(jsondata["data"]["burstimes"]))
+                else:
+                    self.RunsSpinBox.setValue(0)
+                    self.ProcessesSpinBox.setValue(0)
+                    self.TimeQuantumSpinBox.setValue(0)
+                    self.ArrivalTimesValueBox.clear()
+                    self.BurstTimesValueBox.clear()
+            else:
+                self.RandomizedDataRadio.setChecked(True)
 
 
 if __name__ == "__main__":
