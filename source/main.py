@@ -37,7 +37,9 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
         self.RandomizedDataRadio.toggled.connect(self.disable_prop_options)
         self.CustomDataRadio.toggled.connect(self.disable_prop_options)
 
-        self.LoadPropertiesButton.clicked.connect(self.load_data)
+        self.LoadPropertiesButton.clicked.connect(self.load_prop_data)
+        # TODO: Temporary used Save Results Button to Save Properties
+        self.SaveResultsButton.clicked.connect(self.save_prop_data)
 
         self.setWindowTitle("Schedule Simulator v0.01")
         self.RunsSpinBox.setMaximum(3)
@@ -124,11 +126,12 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
             self.StartSimulationButton.setDisabled(True)
             self.StartSimulationButton.setStyleSheet("")
 
-    def load_data(self):
+    def load_prop_data(self):
         data = QtWidgets.QFileDialog(parent=self)
+        data.setWindowTitle("Open Properties Save File")
         data.setFileMode(QtWidgets.QFileDialog.ExistingFile)
         data.setViewMode(QtWidgets.QFileDialog.List)
-        data.setNameFilter(self.tr("Save File (*.sav)"))
+        data.setNameFilter(self.tr("Properties Save File (*.sav)"))
         directory = QtCore.QStandardPaths.standardLocations(QtCore.QStandardPaths.DocumentsLocation)
         data.setDirectory(directory[0])
         if data.exec():
@@ -177,6 +180,78 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
                     self.BurstTimesValueBox.clear()
             else:
                 self.RandomizedDataRadio.setChecked(True)
+
+    def save_prop_data(self):
+        filename = QtWidgets.QFileDialog(parent=self)
+        filename.setWindowTitle("Save Properties Save File")
+        filename.setFileMode(QtWidgets.QFileDialog.ExistingFile)
+        filename.setViewMode(QtWidgets.QFileDialog.List)
+        filename.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
+        filename.setNameFilters([self.tr("Properties Save File (*.sav)"),
+                                 self.tr("Any Files (*)")])
+        directory = QtCore.QStandardPaths.standardLocations(QtCore.QStandardPaths.DocumentsLocation)
+        filename.setDirectory(directory[0])
+
+        if filename.exec():
+            datafilename = filename.selectedFiles()[0]
+            try:
+                createfile = open(datafilename, 'x')
+                createfile.close()
+            except IOError:
+                print(IOError)
+            try:
+                with open(datafilename, 'w') as json_file:
+                    if self.MultithreadingRadio.isChecked() and not self.MultiprocessingRadio.isChecked():
+                        simulationmode = 0
+                    else:
+                        simulationmode = 1
+
+                    if self.StaticAlgorithmRadio.isChecked() and not self.DynamicAlgorithmRadio.isChecked():
+                        algorithmtype = 0
+                    else:
+                        algorithmtype = 1
+
+                    if self.CustomDataRadio.isChecked() and not self.RandomizedDataRadio.isChecked():
+                        if self.ArrivalTimesValueBox.toPlainText() is None:
+                            arrivaltimes = None
+                        else:
+                            arrivaltimes = self.ArrivalTimesValueBox.toPlainText()
+
+                        if self.BurstTimesValueBox.toPlainText() is None:
+                            burstimes = None
+                        else:
+                            burstimes = self.BurstTimesValueBox.toPlainText()
+
+                        temp = {
+                            "simulationmode": simulationmode,
+                            "algorithmtype": algorithmtype,
+                            "algorithm1": self.AlgorithmSelector.currentIndex(),
+                            "algorithm2": self.Algorithm2Selector.currentIndex(),
+                            "simulationconfig": 0,
+                            "datafilename":
+                                {
+                                    "runs": self.RunsSpinBox.value(),
+                                    "processes": self.ProcessesSpinBox.value(),
+                                    "timequantum": self.TimeQuantumSpinBox.value(),
+                                    "arrivaltimes": arrivaltimes,
+                                    "burstimes": burstimes
+                                }
+                        }
+                    else:
+                        temp = {
+                            "simulationmode": simulationmode,
+                            "algorithmtype": algorithmtype,
+                            "algorithm1": self.AlgorithmSelector.currentIndex(),
+                            "algorithm2": self.Algorithm2Selector.currentIndex(),
+                            "simulationconfig": 1,
+                            "datafilename": None
+                        }
+                    json.dump(temp, json_file, indent=4)
+                print(datafilename)
+            except IOError:
+                print(IOError)
+                logging.warning(f"File '{datafilename}' is currently in use")
+                print(f"File '{datafilename}' is currently in use")
 
 
 if __name__ == "__main__":
