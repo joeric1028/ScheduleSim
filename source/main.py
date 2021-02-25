@@ -26,6 +26,11 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
         self.StartSimulationButton.clicked.connect(self.start_simulation)
         self.AlgorithmSelector.currentIndexChanged.connect(self.data_verification)
         self.Algorithm2Selector.currentIndexChanged.connect(self.data_verification)
+        self.RunsSpinBox.valueChanged.connect(self.data_verification)
+        self.ProcessesSpinBox.valueChanged.connect(self.data_verification)
+        self.TimeQuantumSpinBox.valueChanged.connect(self.data_verification)
+        self.ArrivalTimesValueBox.textChanged.connect(self.data_verification)
+        self.BurstTimesValueBox.textChanged.connect(self.data_verification)
 
         self.MultithreadingRadio.toggled.connect(self.data_verification)
         self.MultiprocessingRadio.toggled.connect(self.data_verification)
@@ -40,6 +45,7 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
         self.setWindowTitle("Schedule Simulator v0.0.1")
         self.RunsSpinBox.setMaximum(3)
         self.ProcessesSpinBox.setMaximum(5)
+        self.TimeQuantumSpinBox.setMaximum(10)
         self.data_verification()
 
         # TODO: Test Display of Graph
@@ -91,6 +97,8 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
             testprocesses = random.randint(2, self.ProcessesSpinBox.maximum())
             self.RunsSpinBox.setValue(testrun)
             self.ProcessesSpinBox.setValue(testprocesses)
+            self.ArrivalTimesValueBox.clear()
+            self.BurstTimesValueBox.clear()
             tempprocessdata = []
 
             if self.StaticAlgorithmRadio.isChecked():
@@ -180,7 +188,7 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
 
         runs = []
         for j in range(len(resultRR)):
-            runs.append(j+1)
+            runs.append(j + 1)
 
         self.mplwidget.canvas.ax.plot(runs, resultRR, label="Round Robin")
         self.mplwidget.canvas.ax.legend()
@@ -194,7 +202,12 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
                 (self.StaticAlgorithmRadio.isChecked() or self.DynamicAlgorithmRadio.isChecked()) and \
                 (self.AlgorithmSelector.currentIndex() != -1 or self.Algorithm2Selector.currentIndex() != -1) and \
                 (self.CustomDataRadio.isChecked() or self.RandomizedDataRadio.isChecked()) and \
-                (self.AlgorithmSelector.currentIndex() != self.Algorithm2Selector.currentIndex()):
+                (self.AlgorithmSelector.currentIndex() != self.Algorithm2Selector.currentIndex() and
+                 self.RandomizedDataRadio.isChecked() or
+                 self.CustomDataRadio.isChecked() and
+                 (self.RunsSpinBox.value() > 1 and self.ProcessesSpinBox.value() > 1 and
+                 self.TimeQuantumSpinBox.value() > 1) and
+                 (self.ArrivalTimesValueBox.toPlainText() != "" and self.BurstTimesValueBox.toPlainText() != "")):
             self.StartSimulationButton.setEnabled(True)
             self.StartSimulationButton.setStyleSheet("background-color: rgb(255, 0, 0);color: rgb(255, 255, 255);")
         else:
