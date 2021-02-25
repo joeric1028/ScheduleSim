@@ -10,22 +10,10 @@
     <height>1080</height>
    </rect>
   </property>
-  <property name="sizeIncrement">
-   <size>
-    <width>10</width>
-    <height>10</height>
-   </size>
-  </property>
   <property name="windowTitle">
-   <string>Schedule Simulator</string>
+   <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
    <widget class="MplWidget" name="mplwidget" native="true">
     <property name="geometry">
      <rect>
@@ -41,12 +29,6 @@
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
-    <property name="minimumSize">
-     <size>
-      <width>1611</width>
-      <height>0</height>
-     </size>
-    </property>
    </widget>
    <widget class="QGroupBox" name="SettingsBox">
     <property name="geometry">
@@ -56,18 +38,6 @@
       <width>271</width>
       <height>1058</height>
      </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>271</width>
-      <height>1058</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>271</width>
-      <height>1058</height>
-     </size>
     </property>
     <property name="title">
      <string/>
@@ -375,7 +345,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>840</y>
+       <y>870</y>
        <width>251</width>
        <height>31</height>
       </rect>
@@ -393,7 +363,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>880</y>
+       <y>910</y>
        <width>251</width>
        <height>51</height>
       </rect>
@@ -549,6 +519,11 @@ color: rgb(255, 255, 255);</string>
       <rect>
        <x>10</x>
        <y>810</y>
+    <widget class="QPushButton" name="SavePropertiesButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>840</y>
        <width>251</width>
        <height>31</height>
       </rect>
@@ -576,7 +551,15 @@ color: rgb(255, 255, 255);</string>
         </property>
        </widget>
       </item>
-     </layout>
+     </layout>======
+     <property name="font">
+      <font>
+       <family>Open Sans</family>
+      </font>
+     </property>
+     <property name="text">
+      <string>Save Properties</string>
+     </property>
     </widget>
    </widget>
   </widget>
