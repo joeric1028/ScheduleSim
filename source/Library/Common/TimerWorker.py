@@ -25,9 +25,3 @@ class TimerWorker:
                 t = time.strftime("%S seconds", time.gmtime(timer))
             print(f'\rRunning Simulation - Time Elapsed: {t}', end="")
             time.sleep(0.5)
-
-    def runonprocess(self):
-        self.process1.start()
-
-    def __del__(self):
-        self.process1.terminate()
