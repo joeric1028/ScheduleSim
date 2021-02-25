@@ -371,24 +371,6 @@
       </item>
      </layout>
     </widget>
-    <widget class="QPushButton" name="LoadPropertiesButton">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>810</y>
-       <width>251</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Open Sans</family>
-      </font>
-     </property>
-     <property name="text">
-      <string>Load Properties</string>
-     </property>
-    </widget>
     <widget class="QPushButton" name="SaveResultsButton">
      <property name="geometry">
       <rect>
@@ -557,6 +539,40 @@ color: rgb(255, 255, 255);</string>
        <widget class="QRadioButton" name="RandomizedDataRadio">
         <property name="text">
          <string>Random Data</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>810</y>
+       <width>251</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="LoadPropertiesButton">
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+         </font>
+        </property>
+        <property name="text">
+         <string>Load Properties</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="SavePropertiesButton">
+        <property name="text">
+         <string>Save Properties</string>
         </property>
        </widget>
       </item>

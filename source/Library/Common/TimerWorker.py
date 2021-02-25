@@ -1,12 +1,5 @@
-import logging
 import time
 from multiprocessing import Process
-
-logging.basicConfig(filename='log.txt', level=logging.INFO,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %('
-                           'message)s')
-
-logger = logging.getLogger(__name__)
 
 
 class TimerWorker:
@@ -23,7 +16,6 @@ class TimerWorker:
 
     def run(self):
         print("\n")
-        logging.info("Started Timer.")
         while self.timestop != 1:
             self.timeelapsed = time.time()
             timer = self.timeelapsed - self.time
@@ -43,4 +35,3 @@ class TimerWorker:
 
     def __del__(self):
         self.process1.terminate()
-        logging.info("Stopped Timer.")
