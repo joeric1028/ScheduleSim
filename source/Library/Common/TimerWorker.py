@@ -1,5 +1,4 @@
 import time
-from multiprocessing import Process
 
 
 class TimerWorker:
@@ -8,11 +7,8 @@ class TimerWorker:
         self.time = starttime
         self.timeelapsed = 0
         self.timestop = 0
-        self.process1 = Process(target=self.run)
         if not self.mode:
             self.run()
-        else:
-            self.runonprocess()
 
     def run(self):
         print("\n")

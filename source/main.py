@@ -1,11 +1,8 @@
-from __future__ import with_statement
 import sys
 import random
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from source.Library.UI.schedulesim_ui import Ui_MplMainWindow
-from source.Library.Algorithms.NonRealTime.RoundRobin import *
-from source.Library.Algorithms.NonRealTime.ShortestJobFirst import *
 from source.Library.Common.ThreadWorker import *
 import json
 from concurrent import futures
