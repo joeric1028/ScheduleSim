@@ -89,14 +89,15 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
         self.data_verification()
 
     def generate_random_data(self):
+        tempprocessdata = []
+
         if self.RandomizedDataRadio.isChecked():
-            testrun = random.randint(1, self.RunsSpinBox.maximum())
+            testrun = random.randint(2, self.RunsSpinBox.maximum())
             testprocesses = random.randint(2, self.ProcessesSpinBox.maximum())
             self.RunsSpinBox.setValue(testrun)
             self.ProcessesSpinBox.setValue(testprocesses)
             self.ArrivalTimesValueBox.clear()
             self.BurstTimesValueBox.clear()
-            tempprocessdata = []
 
             if self.StaticAlgorithmRadio.isChecked():
                 quantum = random.randint(1, self.TimeQuantumSpinBox.maximum())
@@ -115,15 +116,18 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
                         temp_dataRR.extend([process_id, arrival_time, burst_time, 0, burst_time])
                         temp_dataSJF.extend([process_id, arrival_time, burst_time, 0])
                         if self.ArrivalTimesValueBox.toPlainText() != "":
-                            self.ArrivalTimesValueBox.setPlainText(self.ArrivalTimesValueBox.toPlainText() + ","
-                                                                   + str(arrival_time))
+                            if j == 0:
+                                self.ArrivalTimesValueBox.setPlainText(self.ArrivalTimesValueBox.toPlainText() + ";"
+                                                                       + str(arrival_time))
+                                self.BurstTimesValueBox.setPlainText(self.BurstTimesValueBox.toPlainText() + ";"
+                                                                     + str(burst_time))
+                            else:
+                                self.ArrivalTimesValueBox.setPlainText(self.ArrivalTimesValueBox.toPlainText() + ","
+                                                                       + str(arrival_time))
+                                self.BurstTimesValueBox.setPlainText(self.BurstTimesValueBox.toPlainText() + ","
+                                                                     + str(burst_time))
                         else:
                             self.ArrivalTimesValueBox.setPlainText(str(arrival_time))
-
-                        if self.BurstTimesValueBox.toPlainText() != "":
-                            self.BurstTimesValueBox.setPlainText(self.BurstTimesValueBox.toPlainText() + ","
-                                                                 + str(burst_time))
-                        else:
                             self.BurstTimesValueBox.setPlainText(str(burst_time))
                         temprunsdataRR.append(temp_dataRR)
                         temprunsdataSJF.append(temp_dataSJF)
@@ -134,7 +138,34 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
                     pass
                 elif self.Algorithm2Selector.currentIndex(1):  # Earliest Deadline First
                     pass
-            self.processdata = tempprocessdata
+        elif self.CustomDataRadio.isChecked():
+            arrival_time_string = self.ArrivalTimesValueBox.toPlainText()
+            arrival_time_string = arrival_time_string.split(";")
+
+            burst_time_string = self.BurstTimesValueBox.toPlainText()
+            burst_time_string = burst_time_string.split(";")
+
+            for i in range(self.RunsSpinBox.value()):
+                temp_arrival_time_string = arrival_time_string[i].split(",")
+                temp_burst_time_string = burst_time_string[i].split(",")
+                temprunsdataRR = []
+                temprunsdataSJF = []
+
+                for j in range(self.ProcessesSpinBox.value()):
+                    temp_dataRR = []
+                    temp_dataSJF = []
+                    process_id = j + 1
+                    arrival_time = int(temp_arrival_time_string[j])
+                    burst_time = int(temp_burst_time_string[j])
+                    temp_dataRR.extend([process_id, arrival_time, burst_time, 0, burst_time])
+                    temp_dataSJF.extend([process_id, arrival_time, burst_time, 0])
+                    temprunsdataRR.append(temp_dataRR)
+                    temprunsdataSJF.append(temp_dataSJF)
+                tempprocessdata.append([0, temprunsdataRR, self.TimeQuantumSpinBox.value()])
+                tempprocessdata.append([1, temprunsdataSJF, 0])
+
+        self.processdata = tempprocessdata
+        self.result = []
 
     def start_simulation(self):
         # TODO: Test Display of Graph using Start Simulation tool
@@ -203,7 +234,7 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
                  self.RandomizedDataRadio.isChecked() or
                  self.CustomDataRadio.isChecked() and
                  (self.RunsSpinBox.value() > 1 and self.ProcessesSpinBox.value() > 1 and
-                 self.TimeQuantumSpinBox.value() > 1) and
+                  self.TimeQuantumSpinBox.value() > 0) and
                  (self.ArrivalTimesValueBox.toPlainText() != "" and self.BurstTimesValueBox.toPlainText() != "")):
             self.StartSimulationButton.setEnabled(True)
             self.StartSimulationButton.setStyleSheet("background-color: rgb(255, 0, 0);color: rgb(255, 255, 255);")
