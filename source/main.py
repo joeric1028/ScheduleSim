@@ -3,10 +3,8 @@ import random
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from source.Library.UI.schedulesim_ui import Ui_MplMainWindow
-from source.Library.Common.ThreadWorker import *
 import json
-from concurrent import futures
-import os
+from source.Library.Common.LoadBalancer import LoadBalancer
 
 
 class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
@@ -153,30 +151,49 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
         resultRR = []
         resultSJF = []
 
-        if self.MultiprocessingRadio.isChecked():
-            with futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
-                results = executor.map(ThreadWorker, self.processdata)
+        # if self.MultiprocessingRadio.isChecked():
+        #     with futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
+        #         results = executor.map(ThreadWorker, self.processdata)
+        #
+        #         for f in results:
+        #             if f.waitingRR != 0:
+        #                 self.result.append([0, f.waitingRR])
+        #                 resultRR.append(f.waitingRR)
+        #             if f.waitingSJF != 0:
+        #                 self.result.append([1, f.waitingSJF])
+        #                 resultSJF.append(f.waitingSJF)
+        # elif self.MultithreadingRadio.isChecked():
+        #     with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+        #         results = executor.map(ThreadWorker, self.processdata)
+        #
+        #         for f in results:
+        #             if f.waitingRR != 0:
+        #                 self.result.append([0, f.waitingRR])
+        #                 resultRR.append(f.waitingRR)
+        #             if f.waitingSJF != 0:
+        #                 self.result.append([1, f.waitingSJF])
+        #                 resultSJF.append(f.waitingSJF)
+        # else:
+        #     return
 
-                for f in results:
-                    if f.waitingRR != 0:
-                        self.result.append([0, f.waitingRR])
-                        resultRR.append(f.waitingRR)
-                    if f.waitingSJF != 0:
-                        self.result.append([1, f.waitingSJF])
-                        resultSJF.append(f.waitingSJF)
-        elif self.MultithreadingRadio.isChecked():
-            with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-                results = executor.map(ThreadWorker, self.processdata)
+        args_array = {
+            # Set some initial CPU load values as a CPU usage goal
+            "cpu_target": 0.60,
+            # When CPU load is significantly low, start this number
+            # of threads
+            "thread_group_size": 3
+        }
 
-                for f in results:
-                    if f.waitingRR != 0:
-                        self.result.append([0, f.waitingRR])
-                        resultRR.append(f.waitingRR)
-                    if f.waitingSJF != 0:
-                        self.result.append([1, f.waitingSJF])
-                        resultSJF.append(f.waitingSJF)
-        else:
-            return
+        load1 = LoadBalancer(args_array)
+
+        load1.start_thread_process(self.processdata)
+        for f in range(len(load1.results)):
+            if load1.results[f][0] != 0:
+                self.result.append(load1.results[f])
+                resultRR.append(load1.results[f])
+            if load1.results[f][0] != 1:
+                self.result.append(load1.results[f])
+                resultSJF.append(load1.results[f])
 
         self.mplwidget.canvas.ax.cla()
         self.mplwidget.canvas.ax.set_title("Round Robin vs Shortest Job First Simulation Test")
