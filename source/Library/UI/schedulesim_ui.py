@@ -9,12 +9,14 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from source.Library.UI.mplwidget import MplWidget
 
 
 class Ui_MplMainWindow(object):
     def setupUi(self, MplMainWindow):
         MplMainWindow.setObjectName("MplMainWindow")
-        MplMainWindow.resize(1920, 1080)
+        MplMainWindow.resize(800, 600)
+        MplMainWindow.setMinimumSize(QtCore.QSize(800, 600))
         MplMainWindow.setSizeIncrement(QtCore.QSize(10, 10))
         self.centralwidget = QtWidgets.QWidget(MplMainWindow)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
@@ -24,19 +26,31 @@ class Ui_MplMainWindow(object):
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
         self.centralwidget.setObjectName("centralwidget")
+        self.horizontalLayout_10 = QtWidgets.QHBoxLayout(self.centralwidget)
+        self.horizontalLayout_10.setObjectName("horizontalLayout_10")
         self.mplwidget = MplWidget(self.centralwidget)
-        self.mplwidget.setGeometry(QtCore.QRect(11, 11, 1611, 1058))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mplwidget.sizePolicy().hasHeightForWidth())
         self.mplwidget.setSizePolicy(sizePolicy)
-        self.mplwidget.setMinimumSize(QtCore.QSize(1611, 0))
+        self.mplwidget.setMinimumSize(QtCore.QSize(0, 0))
         self.mplwidget.setObjectName("mplwidget")
-        self.SettingsBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.SettingsBox.setGeometry(QtCore.QRect(1637, 11, 271, 1058))
-        self.SettingsBox.setMinimumSize(QtCore.QSize(271, 1058))
-        self.SettingsBox.setMaximumSize(QtCore.QSize(271, 1058))
+        self.horizontalLayout_10.addWidget(self.mplwidget)
+        self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
+        self.scrollArea.setMinimumSize(QtCore.QSize(305, 0))
+        self.scrollArea.setMaximumSize(QtCore.QSize(305, 16777215))
+        self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 289, 968))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.SettingsBox = QtWidgets.QGroupBox(self.scrollAreaWidgetContents)
+        self.SettingsBox.setMinimumSize(QtCore.QSize(271, 950))
+        self.SettingsBox.setMaximumSize(QtCore.QSize(271, 950))
         self.SettingsBox.setTitle("")
         self.SettingsBox.setObjectName("SettingsBox")
         self.SettingsString = QtWidgets.QLabel(self.SettingsBox)
@@ -259,6 +273,9 @@ class Ui_MplMainWindow(object):
         self.SavePropertiesButton = QtWidgets.QPushButton(self.horizontalLayoutWidget)
         self.SavePropertiesButton.setObjectName("SavePropertiesButton")
         self.horizontalLayout_9.addWidget(self.SavePropertiesButton)
+        self.verticalLayout.addWidget(self.SettingsBox)
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.horizontalLayout_10.addWidget(self.scrollArea)
         MplMainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MplMainWindow)
@@ -292,8 +309,6 @@ class Ui_MplMainWindow(object):
         self.LoadPropertiesButton.setText(_translate("MplMainWindow", "Load Properties"))
         self.SavePropertiesButton.setText(_translate("MplMainWindow", "Save Properties"))
 
-
-from source.Library.UI.mplwidget import MplWidget
 
 if __name__ == "__main__":
     import sys
