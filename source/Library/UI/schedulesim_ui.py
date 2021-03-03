@@ -19,8 +19,7 @@ class Ui_MplMainWindow(object):
         MplMainWindow.setMinimumSize(QtCore.QSize(800, 600))
         MplMainWindow.setSizeIncrement(QtCore.QSize(10, 10))
         self.centralwidget = QtWidgets.QWidget(MplMainWindow)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
-                                           QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
@@ -38,13 +37,13 @@ class Ui_MplMainWindow(object):
         self.mplwidget.setObjectName("mplwidget")
         self.horizontalLayout_10.addWidget(self.mplwidget)
         self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
-        self.scrollArea.setMinimumSize(QtCore.QSize(305, 0))
-        self.scrollArea.setMaximumSize(QtCore.QSize(305, 16777215))
+        self.scrollArea.setMinimumSize(QtCore.QSize(310, 0))
+        self.scrollArea.setMaximumSize(QtCore.QSize(310, 16777215))
         self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 289, 968))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, -388, 294, 968))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -203,7 +202,7 @@ class Ui_MplMainWindow(object):
         font.setWeight(75)
         self.StartSimulationButton.setFont(font)
         self.StartSimulationButton.setStyleSheet("background-color: rgb(255, 0, 0);\n"
-                                                 "color: rgb(255, 255, 255);")
+"color: rgb(255, 255, 255);")
         self.StartSimulationButton.setAutoDefault(False)
         self.StartSimulationButton.setDefault(False)
         self.StartSimulationButton.setFlat(False)
@@ -289,8 +288,7 @@ class Ui_MplMainWindow(object):
         self.AlgorithmTypeString.setText(_translate("MplMainWindow", "Algorithm Type"))
         self.AlgorithmString.setText(_translate("MplMainWindow", "Algorithm 1"))
         self.SimulationConfigString.setText(_translate("MplMainWindow", "Simulation Configuration"))
-        self.NoteString.setText(_translate("MplMainWindow",
-                                           "<html><head/><body><p align=\"center\"><span style=\" font-weight:600; color:#ff0004;\">Note:</span><span style=\" color:#ff0004;\"> Custom data input will only allow <br/>up to 3 simulation runs and up to 5 <br/>processes for each run.</span></p></body></html>"))
+        self.NoteString.setText(_translate("MplMainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-weight:600; color:#ff0004;\">Note:</span><span style=\" color:#ff0004;\"> Custom data input will only allow <br/>up to 3 simulation runs and up to 5 <br/>processes for each run.</span></p></body></html>"))
         self.RunsString.setText(_translate("MplMainWindow", "Number of Runs:"))
         self.ProcessesString.setText(_translate("MplMainWindow", "Number of Processes:"))
         self.ProcessPropString.setText(_translate("MplMainWindow", "Process Properties:"))
@@ -312,7 +310,6 @@ class Ui_MplMainWindow(object):
 
 if __name__ == "__main__":
     import sys
-
     app = QtWidgets.QApplication(sys.argv)
     MplMainWindow = QtWidgets.QMainWindow()
     ui = Ui_MplMainWindow()
