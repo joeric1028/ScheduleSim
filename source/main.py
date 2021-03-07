@@ -255,13 +255,43 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
                  self.RandomizedDataRadio.isChecked() or
                  self.CustomDataRadio.isChecked() and
                  (self.RunsSpinBox.value() > 1 and self.ProcessesSpinBox.value() > 1 and
-                 self.TimeQuantumSpinBox.value() > 0) and
-                 (self.ArrivalTimesValueBox.toPlainText() != "" and self.BurstTimesValueBox.toPlainText() != "")):
+                  self.TimeQuantumSpinBox.value() > 0) and
+                 (self.ArrivalTimesValueBox.toPlainText() != "" and self.BurstTimesValueBox.toPlainText() != "")) and \
+                self.arrival_burst_time_data_verification():
             self.StartSimulationButton.setEnabled(True)
             self.StartSimulationButton.setStyleSheet("background-color: rgb(255, 0, 0);color: rgb(255, 255, 255);")
         else:
             self.StartSimulationButton.setDisabled(True)
             self.StartSimulationButton.setStyleSheet("")
+
+    def arrival_burst_time_data_verification(self):
+        arrival_time_string = self.ArrivalTimesValueBox.toPlainText()
+        arrival_time_string = arrival_time_string.split(";")
+
+        burst_time_string = self.BurstTimesValueBox.toPlainText()
+        burst_time_string = burst_time_string.split(";")
+
+        if len(arrival_time_string) != self.RunsSpinBox.value() or len(burst_time_string) != self.RunsSpinBox.value():
+            return False
+
+        for i in range(self.RunsSpinBox.value()):
+            arrival_time_string[i] = arrival_time_string[i].split(",")
+            burst_time_string[i] = burst_time_string[i].split(",")
+
+            for j in range(len(arrival_time_string[i])):
+                if len(arrival_time_string[i]) != self.ProcessesSpinBox.value() or arrival_time_string[i][j] == "" \
+                        or not arrival_time_string[i][j].isdigit():
+                    return False
+
+            for j in range(len(burst_time_string[i])):
+                if len(burst_time_string[i]) != self.ProcessesSpinBox.value() or burst_time_string[i][j] == "" \
+                        or not burst_time_string[i][j].isdigit():
+                    return False
+
+        print(f"Spliting Arrival time {arrival_time_string}")
+        print(f"Spliting Arrival time {burst_time_string}")
+
+        return True
 
     def load_prop_data(self):
         data = QtWidgets.QFileDialog(parent=self)
