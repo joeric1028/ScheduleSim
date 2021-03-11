@@ -1,36 +1,55 @@
 # Import Python modules
-import time
 import os
-import multiprocessing
+import queue
+import threading
+import time
+
 import psutil
+from PyQt5.QtCore import *
+
 from source.Library.Common.ThreadWorker import ThreadWorker
 
 
-class LoadBalancer:
-    def __init__(self, args):
+class LoadBalancer(QObject):
+    update_result = pyqtSignal(list)
+    finished = pyqtSignal()
+    exited = pyqtSignal()
+
+    def __init__(self, args, parent=None):
+        super().__init__(parent)
         self.argArray = args
         self.results = []
+        self.isRunning = False
+        self.stopRunning = False
+        self.load_balance_process = None
+        parent.startSimulate.connect(self.start_thread_process)
+        parent.stopSimulate.connect(self.stop)
 
-    def __enter__(self, args):
-        self.argArray = args
-        self.results = []
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+    def __del__(self):
+        del self.results
+        del self.load_balance_process
 
     # Main task function
-    def _main_process(self, item_queue, result_queue):
+    def _main_process(self, item_queue, result_queue, queue_size):
         # Go through each link in the array passed in.
         while not item_queue.empty():
+            if self.stopRunning:
+                return
+
             # Get the next item in the queue
             item = item_queue.get()
 
             tempworker = ThreadWorker(item)
 
-            if tempworker.waitingRR != 0:
-                result_queue.put([0, tempworker.waitingRR])
-            if tempworker.waitingSJF != 0:
-                result_queue.put([1, tempworker.waitingSJF])
+            if tempworker.waitingRR is not None:
+                result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingRR])
+                self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingRR])
+            if tempworker.waitingSJF is not None:
+                result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingSJF])
+                self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingSJF])
+
+            if result_queue.qsize() == queue_size:
+                self.finished.emit()
 
             print(f"Show args on load balance executor: {self.argArray}")
 
@@ -40,22 +59,25 @@ class LoadBalancer:
 
     # This function will build a queue and
     def start_thread_process(self, queue_pile_temp):
+        self.isRunning = True
+        self.results = []
         # Create a Queue to hold link pile and share between threads
-        item_queue = multiprocessing.Queue()
-        result_queue = multiprocessing.Queue()
+        item_queue = queue.Queue()
+        result_queue = queue.Queue()
+
+        queue_list_size = 0
         # Put all the initial items into the queue
         for item in queue_pile_temp:
+            queue_list_size = queue_list_size + 1
             item_queue.put(item)
         # Append the load balancer thread to the loop
-        load_balance_process = multiprocessing.Process(target=self._spool_up_load_balance, args=(item_queue,
-                                                                                                 result_queue))
+        self.load_balance_process = threading.Thread(target=self._spool_up_load_balance, args=(item_queue,
+                                                                                               result_queue,
+                                                                                               queue_list_size))
         # Loop through and start all processes
-        load_balance_process.start()
+        self.load_balance_process.start()
         # This .join() function prevents the script from progressing further.
-        load_balance_process.join()
-
-        while not result_queue.empty():
-            self.results.append(result_queue.get())
+        # self.load_balance_process.join()
 
         print(f" Shows Final Result under Start Thread Process: {self.results}")
 
@@ -69,14 +91,20 @@ class LoadBalancer:
         if one_minute_load_average > self.argArray['cpu_target']:
             print("-Unacceptable load balance detected. Killing process " + str(os.getpid()) + "...")
             return True
+        return False
 
     # Load balancer thread function
-    def _spool_up_load_balance(self, item_queue, result_queue):
+    def _spool_up_load_balance(self, item_queue, result_queue, queue_size):
         print("[Starting load balancer...]")
         # Get the count of CPU cores
         core_count = psutil.cpu_count()
         # While there is still links in queue
         while not item_queue.empty():
+            if self.stopRunning:
+                self.isRunning = False
+                self.stopRunning = False
+                print("Worker thread function on Spool up balance is stopped!")
+                return
             print("[Calculating load balance...]")
             # Check the 1 minute average CPU load balance
             # returns 1,5,15 minute load averages
@@ -86,15 +114,36 @@ class LoadBalancer:
                 # Print message and log that load balancer is starting another thread
                 print("Starting another thread group due to low CPU load balance of: " + str(
                     one_minute_load_average * 100) + "%")
+                if self.stopRunning:
+                    self.isRunning = False
+                    self.stopRunning = False
+                    print("Worker thread function on Spool up balance is stopped!")
+                    return
                 time.sleep(5)
+
+                if self.stopRunning:
+                    self.isRunning = False
+                    self.stopRunning = False
+                    print("Worker thread function on Spool up balance is stopped!")
+                    return
                 # Start another group of threads
                 for i in range(3):
-                    start_new_thread = multiprocessing.Process(target=self._main_process, args=(item_queue,
-                                                                                                result_queue))
+                    start_new_thread = threading.Thread(target=self._main_process, args=(item_queue,
+                                                                                         result_queue, queue_size))
                     start_new_thread.start()
                 # Allow the added threads to have an impact on the CPU balance
                 # before checking the one minute average again
-                time.sleep(20)
+                if self.stopRunning:
+                    self.isRunning = False
+                    self.stopRunning = False
+                    print("Worker thread function on Spool up balance is stopped!")
+                    return
+                time.sleep(10)
+                if self.stopRunning:
+                    self.isRunning = False
+                    self.stopRunning = False
+                    print("Worker thread function on Spool up balance is stopped!")
+                    return
 
             # If load average less than target start single thread
             elif one_minute_load_average < self.argArray['cpu_target']:
@@ -102,17 +151,43 @@ class LoadBalancer:
                 print("Starting another single thread due to low CPU load balance of: " + str(
                     one_minute_load_average * 100) + "%")
                 # Start another thread
-                start_new_thread = multiprocessing.Process(target=self._main_process, args=(item_queue, result_queue))
+                start_new_thread = threading.Thread(target=self._main_process, args=(item_queue, result_queue,
+                                                                                     queue_size))
                 start_new_thread.start()
                 # Allow the added threads to have an impact on the CPU balance
                 # before checking the one minute average again
-                time.sleep(20)
+                if self.stopRunning:
+                    self.isRunning = False
+                    self.stopRunning = False
+                    print("Worker thread function on Spool up balance is stopped!")
+                    return
+                time.sleep(10)
+                if self.stopRunning:
+                    self.isRunning = False
+                    self.stopRunning = False
+                    print("Worker thread function on Spool up balance is stopped!")
+                    return
 
             else:
                 # Print CPU load balance
                 print("Reporting stable CPU load balance: " + str(one_minute_load_average * 100) + "%")
                 # Sleep for another minute while
-                time.sleep(20)
+                if self.stopRunning:
+                    self.isRunning = False
+                    self.stopRunning = False
+                    print("Worker thread function on Spool up balance is stopped!")
+                    return
+                time.sleep(10)
+                if self.stopRunning:
+                    self.isRunning = False
+                    self.stopRunning = False
+                    print("Worker thread function on Spool up balance is stopped!")
+                    return
+
+    def stop(self):
+        if self.isRunning:
+            self.stopRunning = True
+            print("Triggered Stop function Worker Thread!")
 
 
 if __name__ == "__main__":
