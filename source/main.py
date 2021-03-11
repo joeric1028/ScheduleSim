@@ -1,15 +1,22 @@
-import sys
-import random
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
-from source.Library.UI.schedulesim_ui import Ui_MplMainWindow
-from source.Library.Common.ThreadWorker import *
 import json
-from concurrent import futures
-import os
+import random
+import sys
+
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+
+from source.Library.Common.LoadBalancer import LoadBalancer
+from source.Library.UI.schedulesim_ui import Ui_MplMainWindow
 
 
-class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
+# from source.Library.Common.ThreadWorker import ThreadWorker
+
+
+class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
+    worker = QThread()
+    startSimulate = pyqtSignal(list)
+    stopSimulate = pyqtSignal()
+
     def __init__(self, parent=None):
         super(DesignerMainWindow, self).__init__(parent)
         self.setupUi(self)
@@ -54,6 +61,12 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
 
         self.processdata = []
         self.result = []
+        self.isRunning = False
+        self.load = None
+
+    def __del__(self):
+        self.worker.quit()
+        self.worker.wait()
 
     def update_algo_list(self):
         if self.StaticAlgorithmRadio.isChecked():
@@ -131,8 +144,8 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
                             self.BurstTimesValueBox.setPlainText(str(burst_time))
                         temprunsdataRR.append(temp_dataRR)
                         temprunsdataSJF.append(temp_dataSJF)
-                    tempprocessdata.append([0, temprunsdataRR, quantum])
-                    tempprocessdata.append([1, temprunsdataSJF, 0])
+                    tempprocessdata.append([0, i + 1, temprunsdataRR, quantum])
+                    tempprocessdata.append([1, i + 1, temprunsdataSJF, 0])
             elif self.DynamicAlgorithmRadio.isChecked():
                 if self.Algorithm2Selector.currentIndex(0):  # Rate Monotonic Scheduling
                     pass
@@ -161,8 +174,8 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
                     temp_dataSJF.extend([process_id, arrival_time, burst_time, 0])
                     temprunsdataRR.append(temp_dataRR)
                     temprunsdataSJF.append(temp_dataSJF)
-                tempprocessdata.append([0, temprunsdataRR, self.TimeQuantumSpinBox.value()])
-                tempprocessdata.append([1, temprunsdataSJF, 0])
+                tempprocessdata.append([0, i + 1, temprunsdataRR, self.TimeQuantumSpinBox.value()])
+                tempprocessdata.append([1, i + 1, temprunsdataSJF, 0])
 
         self.processdata = tempprocessdata
         self.result = []
@@ -179,51 +192,61 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
         self.mplwidget.canvas.ax.legend()
         self.mplwidget.canvas.draw()
 
-        self.generate_random_data()
+        if not self.arrival_burst_time_data_verification():
+            return
+        if self.isRunning:
+            self.result = []
+            self.isRunning = False
+            self.StartSimulationButton.setText("Start Simulation")
+            self.stopSimulate.emit()
+            self.load.deleteLater()
+            self.worker.quit()
+            self.worker.wait()
 
-        resultRR = []
-        resultSJF = []
+            self.StartSimulationButton.setText("Start Simulation")
 
-        if self.MultiprocessingRadio.isChecked():
-            with futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
-                results = executor.map(ThreadWorker, self.processdata)
-
-                for f in results:
-                    if f.waitingRR != 0:
-                        self.result.append([0, f.waitingRR])
-                        resultRR.append(f.waitingRR)
-                    if f.waitingSJF != 0:
-                        self.result.append([1, f.waitingSJF])
-                        resultSJF.append(f.waitingSJF)
-        elif self.MultithreadingRadio.isChecked():
-            with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-                results = executor.map(ThreadWorker, self.processdata)
-
-                for f in results:
-                    if f.waitingRR != 0:
-                        self.result.append([0, f.waitingRR])
-                        resultRR.append(f.waitingRR)
-                    if f.waitingSJF != 0:
-                        self.result.append([1, f.waitingSJF])
-                        resultSJF.append(f.waitingSJF)
-        else:
+            self.mplwidget.canvas.ax.cla()
+            self.mplwidget.canvas.ax.set_title("Stopped Testing")
+            self.mplwidget.canvas.ax.set_xlabel("Runs")
+            self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
+            self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [random.randint(1, 10),
+                                                            random.randint(1, 10), random.randint(1, 10),
+                                                            random.randint(1, 10), random.randint(1, 10)],
+                                          label="plot" + random.randint(1, 10).__str__())
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
             return
 
-        self.mplwidget.canvas.ax.cla()
-        self.mplwidget.canvas.ax.set_title("Round Robin vs Shortest Job First Simulation Test")
-        self.mplwidget.canvas.ax.set_xlabel("Runs")
-        self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
+        args_array = {
+            # Set some initial CPU load values as a CPU usage goal
+            "cpu_target": 0.60,
+            # When CPU load is significantly low, start this number
+            # of threads
+            "thread_group_size": 3
+        }
+        self.result = []
 
-        runs = []
-        for j in range(len(resultRR)):
-            runs.append(j + 1)
+        self.load = LoadBalancer(args_array, parent=self)
+        self.load.moveToThread(self.worker)
+        self.load.update_result.connect(self.update_result)
+        self.load.finished.connect(self.update_graph)
+        self.load.exited.connect(self.load.deleteLater)
+        self.worker.start()
+        self.isRunning = True
+        self.StartSimulationButton.setText("Stop Simulation")
+        self.generate_random_data()
+        self.startSimulate.emit(self.processdata)
 
-        self.mplwidget.canvas.ax.plot(runs, resultRR, label="Round Robin")
-        self.mplwidget.canvas.ax.legend()
-        self.mplwidget.canvas.draw()
-        self.mplwidget.canvas.ax.plot(runs, resultSJF, label="Shortest Job First")
-        self.mplwidget.canvas.ax.legend()
-        self.mplwidget.canvas.draw()
+        # with futures.ThreadPoolExecutor(max_workers=int(CPUCount)) as executor:
+        #     results = executor.map(ThreadWorker, self.processdata)
+        #
+        #     for f in results:
+        #         if f.waitingRR is not None:
+        #             self.result.append([0, f.waitingRR])
+        #             resultRR.append(f.waitingRR)
+        #         if f.waitingSJF is not None:
+        #             self.result.append([1, f.waitingSJF])
+        #             resultSJF.append(f.waitingSJF)
 
     def data_verification(self):
         if (self.MultithreadingRadio.isChecked() or self.MultiprocessingRadio.isChecked()) and \
@@ -235,31 +258,57 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
                  self.CustomDataRadio.isChecked() and
                  (self.RunsSpinBox.value() > 1 and self.ProcessesSpinBox.value() > 1 and
                   self.TimeQuantumSpinBox.value() > 0) and
-                 (self.ArrivalTimesValueBox.toPlainText() != "" and self.BurstTimesValueBox.toPlainText() != "")):
+                 (self.ArrivalTimesValueBox.toPlainText() != "" and self.BurstTimesValueBox.toPlainText() != "")) and \
+                self.arrival_burst_time_data_verification():
             self.StartSimulationButton.setEnabled(True)
             self.StartSimulationButton.setStyleSheet("background-color: rgb(255, 0, 0);color: rgb(255, 255, 255);")
         else:
             self.StartSimulationButton.setDisabled(True)
             self.StartSimulationButton.setStyleSheet("")
 
+    def arrival_burst_time_data_verification(self):
+        arrival_time_string = self.ArrivalTimesValueBox.toPlainText()
+        arrival_time_string = arrival_time_string.split(";")
+
+        burst_time_string = self.BurstTimesValueBox.toPlainText()
+        burst_time_string = burst_time_string.split(";")
+
+        if len(arrival_time_string) != self.RunsSpinBox.value() or len(burst_time_string) != self.RunsSpinBox.value():
+            return False
+
+        for i in range(self.RunsSpinBox.value()):
+            arrival_time_string[i] = arrival_time_string[i].split(",")
+            burst_time_string[i] = burst_time_string[i].split(",")
+
+            for j in range(len(arrival_time_string[i])):
+                if len(arrival_time_string[i]) != self.ProcessesSpinBox.value() or arrival_time_string[i][j] == "" \
+                        or not arrival_time_string[i][j].isdigit():
+                    return False
+
+            for j in range(len(burst_time_string[i])):
+                if len(burst_time_string[i]) != self.ProcessesSpinBox.value() or burst_time_string[i][j] == "" \
+                        or not burst_time_string[i][j].isdigit():
+                    return False
+        return True
+
     def load_prop_data(self):
-        data = QtWidgets.QFileDialog(parent=self)
+        data = QFileDialog(self)
         data.setWindowTitle("Open Properties Save File")
-        data.setFileMode(QtWidgets.QFileDialog.ExistingFile)
-        data.setViewMode(QtWidgets.QFileDialog.List)
+        data.setFileMode(QFileDialog.ExistingFile)
+        data.setViewMode(QFileDialog.List)
         data.setNameFilter(self.tr("Properties Save File (*.sav)"))
-        directory = QtCore.QStandardPaths.standardLocations(QtCore.QStandardPaths.DocumentsLocation)
+        directory = QStandardPaths.standardLocations(QStandardPaths.DocumentsLocation)
         data.setDirectory(directory[0])
         if data.exec():
             filename = data.selectedFiles()
             datafile = open(filename[0], "r")
             if not datafile.errors:
                 datafile.close()
-                message = QtWidgets.QMessageBox(parent=self)
+                message = QMessageBox(self)
                 message.setText(f"Error opening File: {filename}")
                 message.setWindowTitle(self.windowTitle())
-                message.setIcon(QtWidgets.QMessageBox.Warning)
-                message.setStandardButtons(QtWidgets.QMessageBox.Ok)
+                message.setIcon(QMessageBox.Warning)
+                message.setStandardButtons(QMessageBox.Ok)
                 message.exec()
                 return
 
@@ -297,14 +346,14 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
                 self.RandomizedDataRadio.setChecked(True)
 
     def save_prop_data(self):
-        filename = QtWidgets.QFileDialog(parent=self)
+        filename = QFileDialog(self)
         filename.setWindowTitle("Save Properties Save File")
-        filename.setFileMode(QtWidgets.QFileDialog.ExistingFile)
-        filename.setViewMode(QtWidgets.QFileDialog.List)
-        filename.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
+        filename.setFileMode(QFileDialog.ExistingFile)
+        filename.setViewMode(QFileDialog.List)
+        filename.setAcceptMode(QFileDialog.AcceptSave)
         filename.setNameFilters([self.tr("Properties Save File (*.sav)"),
                                  self.tr("Any Files (*)")])
-        directory = QtCore.QStandardPaths.standardLocations(QtCore.QStandardPaths.DocumentsLocation)
+        directory = QStandardPaths.standardLocations(QStandardPaths.DocumentsLocation)
         filename.setDirectory(directory[0])
 
         if filename.exec():
@@ -358,9 +407,54 @@ class DesignerMainWindow(QtWidgets.QMainWindow, Ui_MplMainWindow):
                 print(IOError)
                 print(f"File '{datafilename}' is currently in use or not accessible")
 
+    def update_graph(self):
+        runsRR = []
+        runsSJF = []
+        resultRR = []
+        resultSJF = []
+
+        self.result.sort(key=lambda x: x[1])
+
+        for i in range(len(self.result)):
+            if self.result[i][0] == 0:
+                resultRR.append(self.result[i][2])
+                runsRR.append(self.result[i][1])
+            if self.result[i][0] == 1:
+                resultSJF.append(self.result[i][2])
+                runsSJF.append(self.result[i][1])
+
+        print("Emitted from Worker Thread")
+        print("Showing Results on Main")
+        print(f"From Received Result: {self.result}")
+        print(f"Round Robin: {runsRR}, {resultRR}")
+        print(f"Shortest Job First: {runsSJF}, {resultSJF}")
+
+        self.mplwidget.canvas.ax.cla()
+        self.mplwidget.canvas.ax.set_title("Round Robin vs Shortest Job First Simulation Test")
+        self.mplwidget.canvas.ax.set_xlabel("Runs")
+        self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
+
+        self.mplwidget.canvas.ax.plot(runsRR, resultRR, label="Round Robin")
+        self.mplwidget.canvas.ax.legend()
+        self.mplwidget.canvas.draw()
+        self.mplwidget.canvas.ax.plot(runsSJF, resultSJF, label="Shortest Job First")
+        self.mplwidget.canvas.ax.legend()
+        self.mplwidget.canvas.draw()
+
+        self.isRunning = False
+        self.result = []
+        self.StartSimulationButton.setText("Start Simulation")
+        self.load.deleteLater()
+        self.worker.quit()
+        self.worker.wait()
+
+    def update_result(self, result):
+        self.result.append(result)
+        print(f'Updating Result : {self.result}')
+
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     dmw = DesignerMainWindow()
     dmw.show()
     sys.exit(app.exec_())
