@@ -202,6 +202,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             self.StartSimulationButton.setText("Start Simulation")
             self.disable_all_settings()
             self.stopSimulate.emit()
+            self.load.blockSignals(True)
             self.load.deleteLater()
             self.worker.quit()
             self.worker.wait()
@@ -413,20 +414,21 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                 print(f"File '{datafilename}' is currently in use or not accessible")
 
     def update_graph(self):
+        result = self.result
         runsRR = []
         runsSJF = []
         resultRR = []
         resultSJF = []
 
-        self.result.sort(key=lambda x: x[1])
+        result.sort(key=lambda x: x[1])
 
-        for i in range(len(self.result)):
-            if self.result[i][0] == 0:
-                resultRR.append(self.result[i][2])
-                runsRR.append(self.result[i][1])
-            if self.result[i][0] == 1:
-                resultSJF.append(self.result[i][2])
-                runsSJF.append(self.result[i][1])
+        for i in range(len(result)):
+            if result[i][0] == 0:
+                resultRR.append(result[i][2])
+                runsRR.append(result[i][1])
+            if result[i][0] == 1:
+                resultSJF.append(result[i][2])
+                runsSJF.append(result[i][1])
 
         print("Emitted from Worker Thread")
         print("Showing Results on Main")
@@ -451,6 +453,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.result = []
         self.StartSimulationButton.setText("Start Simulation")
         self.disable_all_settings()
+        self.load.blockSignals(True)
         self.load.deleteLater()
         self.worker.quit()
         self.worker.wait()
