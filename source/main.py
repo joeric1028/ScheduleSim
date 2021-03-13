@@ -45,6 +45,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
 
         self.LoadPropertiesButton.clicked.connect(self.load_prop_data)
         self.SavePropertiesButton.clicked.connect(self.save_prop_data)
+        self.SaveResultsButton.clicked.connect(self.save_result)
 
         self.setWindowTitle("Schedule Simulator v0.0.1")
         self.RunsSpinBox.setMaximum(3)
@@ -52,7 +53,6 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.TimeQuantumSpinBox.setMaximum(10)
         self.data_verification()
 
-        # TODO: Test Display of Graph
         self.mplwidget.canvas.ax.set_title("Simulation Test (Example)")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
         self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
@@ -181,7 +181,6 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.result = []
 
     def start_simulation(self):
-        # TODO: Test Display of Graph using Start Simulation tool
         self.mplwidget.canvas.ax.cla()
         self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
                                            f"{self.Algorithm2Selector.currentText()} Currently Simulating")
@@ -487,6 +486,41 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             self.SavePropertiesButton.setEnabled(True)
             self.SaveResultsButton.setEnabled(True)
             self.disable_prop_options()
+
+    # TODO: Needs to add result.
+    def save_result(self):
+        filename = QFileDialog(self)
+        filename.setWindowTitle("Save Results Image File")
+        filename.setFileMode(QFileDialog.ExistingFile)
+        filename.setViewMode(QFileDialog.List)
+        filename.setAcceptMode(QFileDialog.AcceptSave)
+        filename.setNameFilters([self.tr("PNG (*.png)"),
+                                 self.tr("PDF (*.pdf)"),
+                                 self.tr("SVG (*.svg)"),
+                                 self.tr("JPEG (*.jpg;*.jpeg)")])
+        directory = QStandardPaths.standardLocations(QStandardPaths.DocumentsLocation)
+        filename.setDirectory(directory[0])
+
+        if filename.exec():
+            datafilename = filename.selectedFiles()[0]
+            try:
+                createfile = open(datafilename, 'x')
+                createfile.close()
+            except IOError:
+                print("File is already created!")
+
+            try:
+                self.mplwidget.canvas.fig.savefig(datafilename)
+            except IOError:
+                print(IOError)
+                print(f"File '{datafilename}' is currently in use or not accessible")
+            finally:
+                message = QMessageBox(self)
+                message.setText(f"Successfully saved Image File: {datafilename}")
+                message.setWindowTitle(self.windowTitle())
+                message.setIcon(QMessageBox.Information)
+                message.setStandardButtons(QMessageBox.Ok)
+                message.exec()
 
 
 if __name__ == "__main__":
