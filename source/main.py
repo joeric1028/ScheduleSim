@@ -53,10 +53,10 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.data_verification()
 
         # TODO: Test Display of Graph
-        self.mplwidget.canvas.ax.set_title("Round Robin vs Shortest Job First Testing")
+        self.mplwidget.canvas.ax.set_title("Simulation Test (Example)")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
         self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
-        self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40], label="text")
+        self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40], label="Test Plot")
         self.mplwidget.canvas.ax.legend()
 
         self.processdata = []
@@ -183,12 +183,14 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
     def start_simulation(self):
         # TODO: Test Display of Graph using Start Simulation tool
         self.mplwidget.canvas.ax.cla()
+        self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
+                                           f"{self.Algorithm2Selector.currentText()} Currently Simulating")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
         self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
         self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10)],
-                                      label="plot" + random.randint(1, 10).__str__())
+                                      label="Random Test Plot")
         self.mplwidget.canvas.ax.legend()
         self.mplwidget.canvas.draw()
 
@@ -198,6 +200,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             self.result = []
             self.isRunning = False
             self.StartSimulationButton.setText("Start Simulation")
+            self.disable_all_settings()
             self.stopSimulate.emit()
             self.load.deleteLater()
             self.worker.quit()
@@ -206,13 +209,14 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             self.StartSimulationButton.setText("Start Simulation")
 
             self.mplwidget.canvas.ax.cla()
-            self.mplwidget.canvas.ax.set_title("Stopped Testing")
+            self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
+                                               f"{self.Algorithm2Selector.currentText()} Stopped Simulation Test")
             self.mplwidget.canvas.ax.set_xlabel("Runs")
             self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
             self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [random.randint(1, 10),
                                                             random.randint(1, 10), random.randint(1, 10),
                                                             random.randint(1, 10), random.randint(1, 10)],
-                                          label="plot" + random.randint(1, 10).__str__())
+                                          label="Random Test Plot")
             self.mplwidget.canvas.ax.legend()
             self.mplwidget.canvas.draw()
             return
@@ -234,6 +238,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.worker.start()
         self.isRunning = True
         self.StartSimulationButton.setText("Stop Simulation")
+        self.disable_all_settings()
         self.generate_random_data()
         self.startSimulate.emit(self.processdata)
 
@@ -430,7 +435,8 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         print(f"Shortest Job First: {runsSJF}, {resultSJF}")
 
         self.mplwidget.canvas.ax.cla()
-        self.mplwidget.canvas.ax.set_title("Round Robin vs Shortest Job First Simulation Test")
+        self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
+                                           f"{self.Algorithm2Selector.currentText()} Simulation Test Result")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
         self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
 
@@ -444,6 +450,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.isRunning = False
         self.result = []
         self.StartSimulationButton.setText("Start Simulation")
+        self.disable_all_settings()
         self.load.deleteLater()
         self.worker.quit()
         self.worker.wait()
@@ -451,6 +458,32 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
     def update_result(self, result):
         self.result.append(result)
         print(f'Updating Result : {self.result}')
+
+    def disable_all_settings(self):
+        if self.isRunning:
+            self.MultithreadMultiprocGroup.setEnabled(False)
+            self.StaticDynamicGroup.setEnabled(False)
+            self.AlgorithmSelector.setEnabled(False)
+            self.Algorithm2Selector.setEnabled(False)
+            self.CustomRandomGroup.setEnabled(False)
+            self.RunsGroup.setEnabled(False)
+            self.ProcessesGroup.setEnabled(False)
+            self.TimeQuantumGroup.setEnabled(False)
+            self.ArrivalGroup.setEnabled(False)
+            self.BurstGroup.setEnabled(False)
+            self.LoadPropertiesButton.setEnabled(False)
+            self.SavePropertiesButton.setEnabled(False)
+            self.SaveResultsButton.setEnabled(False)
+        else:
+            self.MultithreadMultiprocGroup.setEnabled(True)
+            self.StaticDynamicGroup.setEnabled(True)
+            self.AlgorithmSelector.setEnabled(True)
+            self.Algorithm2Selector.setEnabled(True)
+            self.CustomRandomGroup.setEnabled(True)
+            self.LoadPropertiesButton.setEnabled(True)
+            self.SavePropertiesButton.setEnabled(True)
+            self.SaveResultsButton.setEnabled(True)
+            self.disable_prop_options()
 
 
 if __name__ == "__main__":
