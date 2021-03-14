@@ -64,10 +64,6 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.isRunning = False
         self.load = None
 
-    def __del__(self):
-        self.worker.quit()
-        self.worker.wait()
-
     def update_algo_list(self):
         if self.StaticAlgorithmRadio.isChecked():
             self.AlgorithmSelector.clear()
