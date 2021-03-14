@@ -45,6 +45,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
 
         self.LoadPropertiesButton.clicked.connect(self.load_prop_data)
         self.SavePropertiesButton.clicked.connect(self.save_prop_data)
+        self.SaveResultsButton.clicked.connect(self.save_result)
 
         self.setWindowTitle("Schedule Simulator v0.0.1")
         self.RunsSpinBox.setMaximum(3)
@@ -52,11 +53,10 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.TimeQuantumSpinBox.setMaximum(10)
         self.data_verification()
 
-        # TODO: Test Display of Graph
-        self.mplwidget.canvas.ax.set_title("Round Robin vs Shortest Job First Testing")
+        self.mplwidget.canvas.ax.set_title("Simulation Test (Example)")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
         self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
-        self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40], label="text")
+        self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40], label="Test Plot")
         self.mplwidget.canvas.ax.legend()
 
         self.processdata = []
@@ -181,14 +181,15 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.result = []
 
     def start_simulation(self):
-        # TODO: Test Display of Graph using Start Simulation tool
         self.mplwidget.canvas.ax.cla()
+        self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
+                                           f"{self.Algorithm2Selector.currentText()} Currently Simulating")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
         self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
         self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10)],
-                                      label="plot" + random.randint(1, 10).__str__())
+                                      label="Random Test Plot")
         self.mplwidget.canvas.ax.legend()
         self.mplwidget.canvas.draw()
 
@@ -198,7 +199,9 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             self.result = []
             self.isRunning = False
             self.StartSimulationButton.setText("Start Simulation")
+            self.disable_all_settings()
             self.stopSimulate.emit()
+            self.load.blockSignals(True)
             self.load.deleteLater()
             self.worker.quit()
             self.worker.wait()
@@ -206,13 +209,14 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             self.StartSimulationButton.setText("Start Simulation")
 
             self.mplwidget.canvas.ax.cla()
-            self.mplwidget.canvas.ax.set_title("Stopped Testing")
+            self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
+                                               f"{self.Algorithm2Selector.currentText()} Stopped Simulation Test")
             self.mplwidget.canvas.ax.set_xlabel("Runs")
             self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
             self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [random.randint(1, 10),
                                                             random.randint(1, 10), random.randint(1, 10),
                                                             random.randint(1, 10), random.randint(1, 10)],
-                                          label="plot" + random.randint(1, 10).__str__())
+                                          label="Random Test Plot")
             self.mplwidget.canvas.ax.legend()
             self.mplwidget.canvas.draw()
             return
@@ -234,6 +238,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.worker.start()
         self.isRunning = True
         self.StartSimulationButton.setText("Stop Simulation")
+        self.disable_all_settings()
         self.generate_random_data()
         self.startSimulate.emit(self.processdata)
 
@@ -408,20 +413,21 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                 print(f"File '{datafilename}' is currently in use or not accessible")
 
     def update_graph(self):
+        result = self.result
         runsRR = []
         runsSJF = []
         resultRR = []
         resultSJF = []
 
-        self.result.sort(key=lambda x: x[1])
+        result.sort(key=lambda x: x[1])
 
-        for i in range(len(self.result)):
-            if self.result[i][0] == 0:
-                resultRR.append(self.result[i][2])
-                runsRR.append(self.result[i][1])
-            if self.result[i][0] == 1:
-                resultSJF.append(self.result[i][2])
-                runsSJF.append(self.result[i][1])
+        for i in range(len(result)):
+            if result[i][0] == 0:
+                resultRR.append(result[i][2])
+                runsRR.append(result[i][1])
+            if result[i][0] == 1:
+                resultSJF.append(result[i][2])
+                runsSJF.append(result[i][1])
 
         print("Emitted from Worker Thread")
         print("Showing Results on Main")
@@ -430,7 +436,8 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         print(f"Shortest Job First: {runsSJF}, {resultSJF}")
 
         self.mplwidget.canvas.ax.cla()
-        self.mplwidget.canvas.ax.set_title("Round Robin vs Shortest Job First Simulation Test")
+        self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
+                                           f"{self.Algorithm2Selector.currentText()} Simulation Test Result")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
         self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
 
@@ -444,6 +451,8 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.isRunning = False
         self.result = []
         self.StartSimulationButton.setText("Start Simulation")
+        self.disable_all_settings()
+        self.load.blockSignals(True)
         self.load.deleteLater()
         self.worker.quit()
         self.worker.wait()
@@ -451,6 +460,67 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
     def update_result(self, result):
         self.result.append(result)
         print(f'Updating Result : {self.result}')
+
+    def disable_all_settings(self):
+        if self.isRunning:
+            self.MultithreadMultiprocGroup.setEnabled(False)
+            self.StaticDynamicGroup.setEnabled(False)
+            self.AlgorithmSelector.setEnabled(False)
+            self.Algorithm2Selector.setEnabled(False)
+            self.CustomRandomGroup.setEnabled(False)
+            self.RunsGroup.setEnabled(False)
+            self.ProcessesGroup.setEnabled(False)
+            self.TimeQuantumGroup.setEnabled(False)
+            self.ArrivalGroup.setEnabled(False)
+            self.BurstGroup.setEnabled(False)
+            self.LoadPropertiesButton.setEnabled(False)
+            self.SavePropertiesButton.setEnabled(False)
+            self.SaveResultsButton.setEnabled(False)
+        else:
+            self.MultithreadMultiprocGroup.setEnabled(True)
+            self.StaticDynamicGroup.setEnabled(True)
+            self.AlgorithmSelector.setEnabled(True)
+            self.Algorithm2Selector.setEnabled(True)
+            self.CustomRandomGroup.setEnabled(True)
+            self.LoadPropertiesButton.setEnabled(True)
+            self.SavePropertiesButton.setEnabled(True)
+            self.SaveResultsButton.setEnabled(True)
+            self.disable_prop_options()
+
+    # TODO: Needs to add result.
+    def save_result(self):
+        filename = QFileDialog(self)
+        filename.setWindowTitle("Save Results Image File")
+        filename.setFileMode(QFileDialog.ExistingFile)
+        filename.setViewMode(QFileDialog.List)
+        filename.setAcceptMode(QFileDialog.AcceptSave)
+        filename.setNameFilters([self.tr("PNG (*.png)"),
+                                 self.tr("PDF (*.pdf)"),
+                                 self.tr("SVG (*.svg)"),
+                                 self.tr("JPEG (*.jpg;*.jpeg)")])
+        directory = QStandardPaths.standardLocations(QStandardPaths.DocumentsLocation)
+        filename.setDirectory(directory[0])
+
+        if filename.exec():
+            datafilename = filename.selectedFiles()[0]
+            try:
+                createfile = open(datafilename, 'x')
+                createfile.close()
+            except IOError:
+                print("File is already created!")
+
+            try:
+                self.mplwidget.canvas.fig.savefig(datafilename)
+            except IOError:
+                print(IOError)
+                print(f"File '{datafilename}' is currently in use or not accessible")
+            finally:
+                message = QMessageBox(self)
+                message.setText(f"Successfully saved Image File: {datafilename}")
+                message.setWindowTitle(self.windowTitle())
+                message.setIcon(QMessageBox.Information)
+                message.setStandardButtons(QMessageBox.Ok)
+                message.exec()
 
 
 if __name__ == "__main__":
