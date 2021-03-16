@@ -255,12 +255,11 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                 (self.AlgorithmSelector.currentIndex() != -1 or self.Algorithm2Selector.currentIndex() != -1) and \
                 (self.CustomDataRadio.isChecked() or self.RandomizedDataRadio.isChecked()) and \
                 (self.AlgorithmSelector.currentIndex() != self.Algorithm2Selector.currentIndex() and
-                 self.RandomizedDataRadio.isChecked() or
-                 self.CustomDataRadio.isChecked() and
+                 (self.RandomizedDataRadio.isChecked() and not self.arrival_burst_time_data_verification()) or
+                 (self.CustomDataRadio.isChecked() and self.arrival_burst_time_data_verification()) and
                  (self.RunsSpinBox.value() > 1 and self.ProcessesSpinBox.value() > 1 and
                   self.TimeQuantumSpinBox.value() > 0) and
-                 (self.ArrivalTimesValueBox.toPlainText() != "" and self.BurstTimesValueBox.toPlainText() != "")) and \
-                self.arrival_burst_time_data_verification():
+                 (self.ArrivalTimesValueBox.toPlainText() != "" and self.BurstTimesValueBox.toPlainText() != "")):
             self.StartSimulationButton.setEnabled(True)
             self.StartSimulationButton.setStyleSheet("background-color: rgb(255, 0, 0);color: rgb(255, 255, 255);")
         else:
