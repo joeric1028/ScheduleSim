@@ -9,9 +9,6 @@ from source.Library.Common.LoadBalancer import LoadBalancer
 from source.Library.UI.schedulesim_ui import Ui_MplMainWindow
 
 
-# from source.Library.Common.ThreadWorker import ThreadWorker
-
-
 class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
     worker = QThread()
     startSimulate = pyqtSignal(list)
@@ -46,6 +43,10 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.LoadPropertiesButton.clicked.connect(self.load_prop_data)
         self.SavePropertiesButton.clicked.connect(self.save_prop_data)
         self.SaveResultsButton.clicked.connect(self.save_result)
+
+        # TODO: Disabled Dynamic Algorithm Selection
+        self.DynamicAlgorithmRadio.setEnabled(False)
+        self.MultiprocessingRadio.setEnabled(False)
 
         self.setWindowTitle("Schedule Simulator v0.0.1")
         self.RunsSpinBox.setMaximum(3)
@@ -229,17 +230,6 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.disable_all_settings()
         self.generate_random_data()
         self.startSimulate.emit(self.processdata)
-
-        # with futures.ThreadPoolExecutor(max_workers=int(CPUCount)) as executor:
-        #     results = executor.map(ThreadWorker, self.processdata)
-        #
-        #     for f in results:
-        #         if f.waitingRR is not None:
-        #             self.result.append([0, f.waitingRR])
-        #             resultRR.append(f.waitingRR)
-        #         if f.waitingSJF is not None:
-        #             self.result.append([1, f.waitingSJF])
-        #             resultSJF.append(f.waitingSJF)
 
     def data_verification(self):
         if (self.MultithreadingRadio.isChecked() or self.MultiprocessingRadio.isChecked()) and \
