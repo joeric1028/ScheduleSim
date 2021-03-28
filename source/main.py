@@ -56,7 +56,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.mplwidget.canvas.ax.set_title("Simulation Test (Example)")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
         self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
-        self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40], label="Test Plot")
+        self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40], label=" Sample Test Plot")
         self.mplwidget.canvas.ax.legend()
 
         self.processdata = []
@@ -185,13 +185,12 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10)],
-                                      label="Random Test Plot")
+                                      label="Random Sample Test Plot")
         self.mplwidget.canvas.ax.legend()
         self.mplwidget.canvas.draw()
 
-        if not self.arrival_burst_time_data_verification():
-            return
         if self.isRunning:
+            print("Stopping Simulation")
             self.result = []
             self.isRunning = False
             self.StartSimulationButton.setText("Start Simulation")
@@ -217,16 +216,9 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             self.mplwidget.canvas.draw()
             return
 
-        args_array = {
-            # Set some initial CPU load values as a CPU usage goal
-            "cpu_target": 0.60,
-            # When CPU load is significantly low, start this number
-            # of threads
-            "thread_group_size": 3
-        }
         self.result = []
 
-        self.load = LoadBalancer(args_array, parent=self)
+        self.load = LoadBalancer(parent=self)
         self.load.moveToThread(self.worker)
         self.load.update_result.connect(self.update_result)
         self.load.finished.connect(self.update_graph)
@@ -255,8 +247,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                 (self.AlgorithmSelector.currentIndex() != -1 or self.Algorithm2Selector.currentIndex() != -1) and \
                 (self.CustomDataRadio.isChecked() or self.RandomizedDataRadio.isChecked()) and \
                 (self.AlgorithmSelector.currentIndex() != self.Algorithm2Selector.currentIndex() and
-                 (self.RandomizedDataRadio.isChecked() and not self.arrival_burst_time_data_verification()) or
-                 (self.CustomDataRadio.isChecked() and self.arrival_burst_time_data_verification()) and
+                 self.arrival_burst_time_data_verification() or
                  (self.RunsSpinBox.value() > 1 and self.ProcessesSpinBox.value() > 1 and
                   self.TimeQuantumSpinBox.value() > 0) and
                  (self.ArrivalTimesValueBox.toPlainText() != "" and self.BurstTimesValueBox.toPlainText() != "")):
@@ -272,6 +263,9 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
 
         burst_time_string = self.BurstTimesValueBox.toPlainText()
         burst_time_string = burst_time_string.split(";")
+
+        if self.RandomizedDataRadio.isChecked():
+            return True
 
         if len(arrival_time_string) != self.RunsSpinBox.value() or len(burst_time_string) != self.RunsSpinBox.value():
             return False
