@@ -58,6 +58,8 @@ class LoadBalancer(QObject):
                 cpu_1, cpu_2, processes_data = self._load_balance(process_data, 15, 10)
                 tempworkercpu1 = ThreadWorker([item[0], item[1], cpu_1, item[3]])
                 tempworkercpu2 = ThreadWorker([item[0], item[1], cpu_2, item[3]])
+                if self.stopRunning:
+                    return
 
                 if tempworkercpu1.waitingRR is not None:
                     tempWaitingRRcpu1 = tempWaitingRRcpu1 + tempworkercpu1.waitingRR
