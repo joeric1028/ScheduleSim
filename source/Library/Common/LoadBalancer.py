@@ -91,8 +91,7 @@ class LoadBalancer(QObject):
         cpu2 = []
         x = 0
         i = 0
-        while i < len(process_data) - 1:
-            i += 1
+        while i < len(process_data):
             if x < cpu1_speed:
                 if x + process_data[i][2] < cpu1_speed:
                     x += process_data[i][2]
@@ -100,10 +99,10 @@ class LoadBalancer(QObject):
                     process_data.pop(i)
             else:
                 break
+            i += 1
         y = 0
         j = 0
-        while j < len(process_data) - 1:
-            j += 1
+        while j < len(process_data):
             if y < cpu2_speed:
                 if y + process_data[j][2] < cpu1_speed:
                     y += process_data[j][2]
@@ -111,7 +110,7 @@ class LoadBalancer(QObject):
                     process_data.pop(j)
             else:
                 break
-
+            j += 1
         if cpu1_speed > cpu2_speed:
             ratio = cpu1_speed / cpu2_speed
             for k in range(len(cpu2)):
