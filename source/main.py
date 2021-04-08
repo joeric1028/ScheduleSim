@@ -395,8 +395,10 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
 
     def update_graph(self):
         result = self.result
-        runsRR = []
-        runsSJF = []
+        runsRRcpu1 = []
+        runsRRcpu2 = []
+        runsSJFcpu1 = []
+        runsSJFcpu2 = []
         resultRRcpu1 = []
         resultRRcpu2 = []
         resultSJFcpu1 = []
@@ -408,23 +410,25 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             if result[i][0] == 0:
                 if result[i][2] == 0:
                     resultRRcpu1.append(result[i][3])
+                    runsRRcpu1.append(result[i][1])
                 elif result[i][2] == 1:
                     resultRRcpu2.append(result[i][3])
-                runsRR.append(result[i][1])
+                    runsRRcpu2.append(result[i][1])
             if result[i][0] == 1:
                 if result[i][2] == 0:
                     resultSJFcpu1.append(result[i][3])
+                    runsSJFcpu1.append(result[i][1])
                 elif result[i][2] == 1:
                     resultSJFcpu2.append(result[i][3])
-                runsSJF.append(result[i][1])
+                    runsSJFcpu2.append(result[i][1])
 
         print("Emitted from Worker Thread")
         print("Showing Results on Main")
         print(f"From Received Result: {self.result}")
-        print(f"Round Robin on CPU 1: {runsRR}, {resultRRcpu1}")
-        print(f"Round Robin on CPU 2: {runsRR}, {resultRRcpu2}")
-        print(f"Shortest Job First on CPU 1: {runsSJF}, {resultSJFcpu1}")
-        print(f"Shortest Job First on CPU 2: {runsSJF}, {resultSJFcpu2}")
+        print(f"Round Robin on CPU 1: {runsRRcpu1}, {resultRRcpu1}")
+        print(f"Round Robin on CPU 2: {runsRRcpu2}, {resultRRcpu2}")
+        print(f"Shortest Job First on CPU 1: {runsSJFcpu1}, {resultSJFcpu1}")
+        print(f"Shortest Job First on CPU 2: {runsSJFcpu2}, {resultSJFcpu2}")
 
         self.mplwidget.canvas.ax.cla()
         self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
@@ -432,16 +436,16 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.mplwidget.canvas.ax.set_xlabel("Runs")
         self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
 
-        self.mplwidget.canvas.ax.plot(runsRR, resultRRcpu1, label="Round Robin CPU 1")
+        self.mplwidget.canvas.ax.plot(runsRRcpu1, resultRRcpu1, label="Round Robin CPU 1")
         self.mplwidget.canvas.ax.legend()
         self.mplwidget.canvas.draw()
-        self.mplwidget.canvas.ax.plot(runsRR, resultRRcpu2, label="Round Robin CPU 2")
+        self.mplwidget.canvas.ax.plot(runsRRcpu2, resultRRcpu2, label="Round Robin CPU 2")
         self.mplwidget.canvas.ax.legend()
         self.mplwidget.canvas.draw()
-        self.mplwidget.canvas.ax.plot(runsSJF, resultSJFcpu1, label="Shortest Job First CPU 1")
+        self.mplwidget.canvas.ax.plot(runsSJFcpu1, resultSJFcpu1, label="Shortest Job First CPU 1")
         self.mplwidget.canvas.ax.legend()
         self.mplwidget.canvas.draw()
-        self.mplwidget.canvas.ax.plot(runsSJF, resultSJFcpu2, label="Shortest Job First CPU 2")
+        self.mplwidget.canvas.ax.plot(runsSJFcpu2, resultSJFcpu2, label="Shortest Job First CPU 2")
         self.mplwidget.canvas.ax.legend()
         self.mplwidget.canvas.draw()
 
