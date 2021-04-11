@@ -183,6 +183,16 @@
               <item row="2" column="1">
                <widget class="QSpinBox" name="Cpu2SpinBox"/>
               </item>
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="CpucheckBox">
+                <property name="text">
+                 <string>1 CPU only</string>
+                </property>
+                <property name="tristate">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>

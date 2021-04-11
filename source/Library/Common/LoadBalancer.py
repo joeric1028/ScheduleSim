@@ -35,54 +35,45 @@ class LoadBalancer(QObject):
 
             # Get the next item in the queue
             item = item_queue.get()
-            tempWaitingRRcpu1 = 0
-            tempWaitingRRcpu2 = 0
-            tempWaitingSJFcpu1 = 0
-            tempWaitingSJFcpu2 = 0
+            tempWaitingRR = 0
+            tempWaitingSJF = 0
+            temp_Algo_Mode = item[0]
+            process_data = item[2]
+            tempworkercpu1 = None
 
-            cpu1, cpu2, process_data = self._load_balance(item[2], otherargs[0][0][0], otherargs[0][0][1])
-            tempworkercpu1 = ThreadWorker([item[0], item[1], cpu1, item[3]])
-            tempworkercpu2 = ThreadWorker([item[0], item[1], cpu2, item[3]])
+            if otherargs[0][2] == 0:
+                while len(process_data) != 0:
+                    if self.stopRunning:
+                        return
 
-            if tempworkercpu1.waitingRR is not None:
-                tempWaitingRRcpu1 = tempWaitingRRcpu1 + tempworkercpu1.waitingRR
-            if tempworkercpu1.waitingSJF is not None:
-                tempWaitingSJFcpu1 = tempWaitingSJFcpu1 + tempworkercpu1.waitingSJF
+                    cpu_1, cpu_2, processes_data = self._load_balance(process_data, otherargs[0][0], otherargs[0][1])
+                    tempworkercpu1 = ThreadWorker([item[0], item[1], cpu_1, item[3]])
+                    tempworkercpu2 = ThreadWorker([item[0], item[1], cpu_2, item[3]])
 
-            if tempworkercpu2.waitingRR is not None:
-                tempWaitingRRcpu2 = tempWaitingRRcpu2 + tempworkercpu2.waitingRR
-            if tempworkercpu2.waitingSJF is not None:
-                tempWaitingSJFcpu2 = tempWaitingSJFcpu2 + tempworkercpu2.waitingSJF
+                    if temp_Algo_Mode == 0:
+                        tempWaitingRR += tempworkercpu1.waitingRR
+                        tempWaitingRR += tempworkercpu2.waitingRR
+                    elif temp_Algo_Mode == 1:
+                        tempWaitingSJF += tempworkercpu1.waitingSJF
+                        tempWaitingSJF += tempworkercpu2.waitingSJF
 
-            while len(process_data) != 0:
-                cpu_1, cpu_2, processes_data = self._load_balance(process_data, 15, 10)
-                tempworkercpu1 = ThreadWorker([item[0], item[1], cpu_1, item[3]])
-                tempworkercpu2 = ThreadWorker([item[0], item[1], cpu_2, item[3]])
-                if self.stopRunning:
-                    return
+                if temp_Algo_Mode == 0:
+                    result_queue.put([tempworkercpu1.algo, tempworkercpu1.runs, tempWaitingRR])
+                    self.update_result.emit([tempworkercpu1.algo, tempworkercpu1.runs, tempWaitingRR])
+                elif temp_Algo_Mode == 1:
+                    result_queue.put([tempworkercpu1.algo, tempworkercpu1.runs, tempWaitingSJF])
+                    self.update_result.emit([tempworkercpu1.algo, tempworkercpu1.runs, tempWaitingSJF])
+            elif otherargs[0][2] == 1:
+                tempworker = ThreadWorker([item[0], item[1], process_data, item[3]])
 
-                if tempworkercpu1.waitingRR is not None:
-                    tempWaitingRRcpu1 = tempWaitingRRcpu1 + tempworkercpu1.waitingRR
-                if tempworkercpu1.waitingSJF is not None:
-                    tempWaitingSJFcpu1 = tempWaitingSJFcpu1 + tempworkercpu1.waitingSJF
+                if temp_Algo_Mode == 0:
+                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingRR])
+                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingRR])
+                elif temp_Algo_Mode == 1:
+                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingSJF])
+                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingSJF])
 
-                if tempworkercpu2.waitingRR is not None:
-                    tempWaitingRRcpu2 = tempWaitingRRcpu2 + tempworkercpu2.waitingRR
-                if tempworkercpu2.waitingSJF is not None:
-                    tempWaitingSJFcpu2 = tempWaitingSJFcpu2 + tempworkercpu2.waitingSJF
-
-            if tempworkercpu1.waitingRR is not None:
-                result_queue.put([tempworkercpu1.algo, tempworkercpu1.runs, 0, tempWaitingRRcpu1])
-                self.update_result.emit([tempworkercpu1.algo, tempworkercpu1.runs, 0, tempWaitingRRcpu1])
-                result_queue.put([tempworkercpu2.algo, tempworkercpu2.runs, 1, tempWaitingRRcpu2])
-                self.update_result.emit([tempworkercpu2.algo, tempworkercpu2.runs, 1, tempWaitingRRcpu2])
-            if tempworkercpu1.waitingSJF is not None:
-                result_queue.put([tempworkercpu1.algo, tempworkercpu1.runs, 0, tempWaitingSJFcpu1])
-                self.update_result.emit([tempworkercpu1.algo, tempworkercpu1.runs, 0, tempWaitingSJFcpu1])
-                result_queue.put([tempworkercpu2.algo, tempworkercpu2.runs, 1, tempWaitingSJFcpu2])
-                self.update_result.emit([tempworkercpu2.algo, tempworkercpu2.runs, 1, tempWaitingSJFcpu2])
-
-            if result_queue.qsize() == otherargs[1] * 2:
+            if result_queue.qsize() == otherargs[1]:
                 print("Finished Simulation")
                 self.finished.emit()
 
@@ -132,24 +123,25 @@ class LoadBalancer(QObject):
 
         otherargs = []
         queue_list_size = 0
-        cpus = []
         tempprocessdata = []
         # Put all the initial items into the queue
         for item in queue_pile_temp:
-            if not cpus:
-                cpus.append(item)
+            if not otherargs:
+                otherargs.append(item)
                 continue
             queue_list_size = queue_list_size + 1
             item_queue.put(item)
             tempprocessdata.append(item)
 
-        otherargs.append(cpus)
         otherargs.append(queue_list_size)
 
         print("Received Data from Main Thread")
         print("Number of Process Data: " + str(queue_list_size))
         print("Process Data: " + str(tempprocessdata))
-        print("CPUs : 1 - " + str(cpus[0][0]) + ", " + "2 - " + str(cpus[0][1]))
+        if otherargs[0][2] == 0:
+            print("CPUs : 1 - " + str(otherargs[0][0]) + ", " + "2 - " + str(otherargs[0][1]))
+        elif otherargs[0][2] == 1:
+            print("1 CPU only")
 
         # Append the load balancer thread to the loop
         self.load_balance_process = threading.Thread(target=self._main_process, args=(item_queue, result_queue,
