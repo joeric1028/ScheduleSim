@@ -10,6 +10,8 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from source.Library.UI.mplwidget import MplWidget
+
 
 class Ui_MplMainWindow(object):
     def setupUi(self, MplMainWindow):
@@ -18,7 +20,8 @@ class Ui_MplMainWindow(object):
         MplMainWindow.setMinimumSize(QtCore.QSize(800, 600))
         MplMainWindow.setSizeIncrement(QtCore.QSize(10, 10))
         self.centralwidget = QtWidgets.QWidget(MplMainWindow)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
+                                           QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
@@ -47,13 +50,13 @@ class Ui_MplMainWindow(object):
         self.scrollArea.setAlignment(QtCore.Qt.AlignCenter)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 294, 968))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 294, 1070))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout.setObjectName("verticalLayout")
         self.SettingsBox = QtWidgets.QGroupBox(self.scrollAreaWidgetContents)
-        self.SettingsBox.setMinimumSize(QtCore.QSize(271, 950))
-        self.SettingsBox.setMaximumSize(QtCore.QSize(271, 950))
+        self.SettingsBox.setMinimumSize(QtCore.QSize(271, 1050))
+        self.SettingsBox.setMaximumSize(QtCore.QSize(271, 1050))
         self.SettingsBox.setTitle("")
         self.SettingsBox.setAlignment(QtCore.Qt.AlignCenter)
         self.SettingsBox.setFlat(False)
@@ -80,19 +83,29 @@ class Ui_MplMainWindow(object):
         self.SimulationEnvString.setFont(font)
         self.SimulationEnvString.setObjectName("SimulationEnvString")
         self.gridLayout.addWidget(self.SimulationEnvString, 1, 0, 1, 1)
-        self.MultithreadMultiprocGroup = QtWidgets.QGroupBox(self.SettingsBox)
-        self.MultithreadMultiprocGroup.setTitle("")
-        self.MultithreadMultiprocGroup.setFlat(False)
-        self.MultithreadMultiprocGroup.setObjectName("MultithreadMultiprocGroup")
-        self.horizontalLayout_7 = QtWidgets.QHBoxLayout(self.MultithreadMultiprocGroup)
-        self.horizontalLayout_7.setObjectName("horizontalLayout_7")
-        self.MultithreadingRadio = QtWidgets.QRadioButton(self.MultithreadMultiprocGroup)
-        self.MultithreadingRadio.setObjectName("MultithreadingRadio")
-        self.horizontalLayout_7.addWidget(self.MultithreadingRadio)
-        self.MultiprocessingRadio = QtWidgets.QRadioButton(self.MultithreadMultiprocGroup)
-        self.MultiprocessingRadio.setObjectName("MultiprocessingRadio")
-        self.horizontalLayout_7.addWidget(self.MultiprocessingRadio)
-        self.gridLayout.addWidget(self.MultithreadMultiprocGroup, 2, 0, 1, 1)
+        self.CpuGroup = QtWidgets.QGroupBox(self.SettingsBox)
+        self.CpuGroup.setTitle("")
+        self.CpuGroup.setFlat(False)
+        self.CpuGroup.setObjectName("CpuGroup")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.CpuGroup)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.Cpu1String = QtWidgets.QLabel(self.CpuGroup)
+        self.Cpu1String.setObjectName("Cpu1String")
+        self.gridLayout_2.addWidget(self.Cpu1String, 1, 0, 1, 1)
+        self.Cpu2String = QtWidgets.QLabel(self.CpuGroup)
+        self.Cpu2String.setObjectName("Cpu2String")
+        self.gridLayout_2.addWidget(self.Cpu2String, 2, 0, 1, 1)
+        self.Cpu1SpinBox = QtWidgets.QSpinBox(self.CpuGroup)
+        self.Cpu1SpinBox.setObjectName("Cpu1SpinBox")
+        self.gridLayout_2.addWidget(self.Cpu1SpinBox, 1, 1, 1, 1)
+        self.Cpu2SpinBox = QtWidgets.QSpinBox(self.CpuGroup)
+        self.Cpu2SpinBox.setObjectName("Cpu2SpinBox")
+        self.gridLayout_2.addWidget(self.Cpu2SpinBox, 2, 1, 1, 1)
+        self.CpucheckBox = QtWidgets.QCheckBox(self.CpuGroup)
+        self.CpucheckBox.setTristate(False)
+        self.CpucheckBox.setObjectName("CpucheckBox")
+        self.gridLayout_2.addWidget(self.CpucheckBox, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.CpuGroup, 2, 0, 1, 1)
         self.AlgorithmTypeString = QtWidgets.QLabel(self.SettingsBox)
         font = QtGui.QFont()
         font.setFamily("Open Sans")
@@ -275,7 +288,8 @@ class Ui_MplMainWindow(object):
         font.setWeight(75)
         self.StartSimulationButton.setFont(font)
         self.StartSimulationButton.setStyleSheet("background-color: rgb(255, 0, 0);\n"
-"color: rgb(255, 255, 255);")
+                                                 "               color: rgb(255, 255, 255);\n"
+                                                 "              ")
         self.StartSimulationButton.setAutoDefault(False)
         self.StartSimulationButton.setDefault(False)
         self.StartSimulationButton.setFlat(False)
@@ -294,8 +308,9 @@ class Ui_MplMainWindow(object):
         MplMainWindow.setWindowTitle(_translate("MplMainWindow", "Schedule Simulator"))
         self.SettingsString.setText(_translate("MplMainWindow", "Settings"))
         self.SimulationEnvString.setText(_translate("MplMainWindow", "Simulation Environment"))
-        self.MultithreadingRadio.setText(_translate("MplMainWindow", "Multithreading"))
-        self.MultiprocessingRadio.setText(_translate("MplMainWindow", "Multiprocessing"))
+        self.Cpu1String.setText(_translate("MplMainWindow", "CPU 1 Speed:"))
+        self.Cpu2String.setText(_translate("MplMainWindow", "CPU 2 Speed:"))
+        self.CpucheckBox.setText(_translate("MplMainWindow", "1 CPU only"))
         self.AlgorithmTypeString.setText(_translate("MplMainWindow", "Algorithm Type"))
         self.StaticAlgorithmRadio.setText(_translate("MplMainWindow", "Static"))
         self.DynamicAlgorithmRadio.setText(_translate("MplMainWindow", "Dynamic"))
@@ -304,8 +319,11 @@ class Ui_MplMainWindow(object):
         self.SimulationConfigString.setText(_translate("MplMainWindow", "Simulation Configuration"))
         self.CustomDataRadio.setText(_translate("MplMainWindow", "Custom Data"))
         self.RandomizedDataRadio.setText(_translate("MplMainWindow", "Random Data"))
-        self.NoteString.setText(_translate("MplMainWindow",
-                                           "<html><head/><body><p align=\"center\"><span style=\" font-weight:600; color:#ff0004;\">Note:</span><span style=\" color:#ff0004;\"> Custom data input will only allow <br/>up to 3 simulation runs and up to 5 <br/>processes for each run.</span></p></body></html>"))
+        self.NoteString.setText(_translate("MplMainWindow", "<html><head/><body><p align=\"center\"><span style=\"\n"
+                                                            "               font-weight:600; color:#ff0004;\">Note:</span><span style=\" color:#ff0004;\">\n"
+                                                            "               Custom data input will only allow <br/>up to 3 simulation runs and up to 5 <br/>processes for\n"
+                                                            "               each run.</span></p></body></html>\n"
+                                                            "              "))
         self.RunsString.setText(_translate("MplMainWindow", "Number of Runs:"))
         self.ProcessesString.setText(_translate("MplMainWindow", "Number of Processes:"))
         self.ProcessPropString.setText(_translate("MplMainWindow", "Process Properties:"))
@@ -316,9 +334,6 @@ class Ui_MplMainWindow(object):
         self.SavePropertiesButton.setText(_translate("MplMainWindow", "Save Properties"))
         self.SaveResultsButton.setText(_translate("MplMainWindow", "Save Results"))
         self.StartSimulationButton.setText(_translate("MplMainWindow", "Start Simulation"))
-
-
-from source.Library.UI.mplwidget import MplWidget
 
 
 if __name__ == "__main__":

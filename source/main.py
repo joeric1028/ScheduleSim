@@ -9,9 +9,6 @@ from source.Library.Common.LoadBalancer import LoadBalancer
 from source.Library.UI.schedulesim_ui import Ui_MplMainWindow
 
 
-# from source.Library.Common.ThreadWorker import ThreadWorker
-
-
 class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
     worker = QThread()
     startSimulate = pyqtSignal(list)
@@ -21,8 +18,9 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         super(DesignerMainWindow, self).__init__(parent)
         self.setupUi(self)
 
-        self.MultithreadingRadio.clicked.connect(self.data_verification)
-        self.MultiprocessingRadio.clicked.connect(self.data_verification)
+        self.Cpu1SpinBox.valueChanged.connect(self.data_verification)
+        self.Cpu2SpinBox.valueChanged.connect(self.data_verification)
+        self.CpucheckBox.toggled.connect(self.disable_cpu_options)
         self.StaticAlgorithmRadio.clicked.connect(self.update_algo_list)
         self.DynamicAlgorithmRadio.clicked.connect(self.update_algo_list)
         self.RandomizedDataRadio.clicked.connect(self.disable_prop_options)
@@ -35,17 +33,16 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.TimeQuantumSpinBox.valueChanged.connect(self.data_verification)
         self.ArrivalTimesValueBox.textChanged.connect(self.data_verification)
         self.BurstTimesValueBox.textChanged.connect(self.data_verification)
-
-        self.MultithreadingRadio.toggled.connect(self.data_verification)
-        self.MultiprocessingRadio.toggled.connect(self.data_verification)
         self.StaticAlgorithmRadio.toggled.connect(self.update_algo_list)
         self.DynamicAlgorithmRadio.toggled.connect(self.update_algo_list)
         self.RandomizedDataRadio.toggled.connect(self.disable_prop_options)
         self.CustomDataRadio.toggled.connect(self.disable_prop_options)
-
         self.LoadPropertiesButton.clicked.connect(self.load_prop_data)
         self.SavePropertiesButton.clicked.connect(self.save_prop_data)
         self.SaveResultsButton.clicked.connect(self.save_result)
+
+        # TODO: Disabled Dynamic Algorithm Selection
+        self.DynamicAlgorithmRadio.setEnabled(False)
 
         self.setWindowTitle("Schedule Simulator v0.0.1")
         self.RunsSpinBox.setMaximum(3)
@@ -56,7 +53,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.mplwidget.canvas.ax.set_title("Simulation Test (Example)")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
         self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
-        self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40], label="Test Plot")
+        self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40], label=" Sample Test Plot")
         self.mplwidget.canvas.ax.legend()
 
         self.processdata = []
@@ -97,8 +94,18 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
 
         self.data_verification()
 
+    def disable_cpu_options(self):
+        if self.CpucheckBox.isChecked():
+            self.Cpu1SpinBox.setEnabled(False)
+            self.Cpu2SpinBox.setEnabled(False)
+        else:
+            self.Cpu1SpinBox.setEnabled(True)
+            self.Cpu2SpinBox.setEnabled(True)
+
+        self.data_verification()
+
     def generate_random_data(self):
-        tempprocessdata = []
+        tempprocessdata = [[self.Cpu1SpinBox.value(), self.Cpu2SpinBox.value(), self.CpucheckBox.isChecked().__int__()]]
 
         if self.RandomizedDataRadio.isChecked():
             testrun = random.randint(2, self.RunsSpinBox.maximum())
@@ -112,6 +119,11 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                 quantum = random.randint(1, self.TimeQuantumSpinBox.maximum())
                 self.TimeQuantumSpinBox.setValue(quantum)
 
+                if self.Cpu1SpinBox.value() < self.Cpu2SpinBox.value():
+                    temp_min_cpu_speed = self.Cpu1SpinBox.value()
+                else:
+                    temp_min_cpu_speed = self.Cpu2SpinBox.value()
+
                 for i in range(testrun):
                     temprunsdataRR = []
                     temprunsdataSJF = []
@@ -121,7 +133,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                         temp_dataSJF = []
                         process_id = j + 1
                         arrival_time = random.randint(0, 100000)
-                        burst_time = random.randint(0, 75000)
+                        burst_time = random.randint(0, temp_min_cpu_speed)
                         temp_dataRR.extend([process_id, arrival_time, burst_time, 0, burst_time])
                         temp_dataSJF.extend([process_id, arrival_time, burst_time, 0])
                         if self.ArrivalTimesValueBox.toPlainText() != "":
@@ -185,13 +197,12 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10)],
-                                      label="Random Test Plot")
+                                      label="Random Sample Test Plot")
         self.mplwidget.canvas.ax.legend()
         self.mplwidget.canvas.draw()
 
-        if not self.arrival_burst_time_data_verification():
-            return
         if self.isRunning:
+            print("Stopping Simulation")
             self.result = []
             self.isRunning = False
             self.StartSimulationButton.setText("Start Simulation")
@@ -217,16 +228,9 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             self.mplwidget.canvas.draw()
             return
 
-        args_array = {
-            # Set some initial CPU load values as a CPU usage goal
-            "cpu_target": 0.60,
-            # When CPU load is significantly low, start this number
-            # of threads
-            "thread_group_size": 3
-        }
         self.result = []
 
-        self.load = LoadBalancer(args_array, parent=self)
+        self.load = LoadBalancer(parent=self)
         self.load.moveToThread(self.worker)
         self.load.update_result.connect(self.update_result)
         self.load.finished.connect(self.update_graph)
@@ -237,26 +241,15 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.disable_all_settings()
         self.generate_random_data()
         self.startSimulate.emit(self.processdata)
-
-        # with futures.ThreadPoolExecutor(max_workers=int(CPUCount)) as executor:
-        #     results = executor.map(ThreadWorker, self.processdata)
-        #
-        #     for f in results:
-        #         if f.waitingRR is not None:
-        #             self.result.append([0, f.waitingRR])
-        #             resultRR.append(f.waitingRR)
-        #         if f.waitingSJF is not None:
-        #             self.result.append([1, f.waitingSJF])
-        #             resultSJF.append(f.waitingSJF)
+        print("Sending Process Data to Load Balancer :" + self.processdata.__str__())
 
     def data_verification(self):
-        if (self.MultithreadingRadio.isChecked() or self.MultiprocessingRadio.isChecked()) and \
+        if (self.CpucheckBox.isChecked() or self.Cpu1SpinBox.value() > 0 and self.Cpu2SpinBox.value() > 0) and \
                 (self.StaticAlgorithmRadio.isChecked() or self.DynamicAlgorithmRadio.isChecked()) and \
                 (self.AlgorithmSelector.currentIndex() != -1 or self.Algorithm2Selector.currentIndex() != -1) and \
                 (self.CustomDataRadio.isChecked() or self.RandomizedDataRadio.isChecked()) and \
                 (self.AlgorithmSelector.currentIndex() != self.Algorithm2Selector.currentIndex() and
-                 (self.RandomizedDataRadio.isChecked() and not self.arrival_burst_time_data_verification()) or
-                 (self.CustomDataRadio.isChecked() and self.arrival_burst_time_data_verification()) and
+                 self.arrival_burst_time_data_verification() and
                  (self.RunsSpinBox.value() > 1 and self.ProcessesSpinBox.value() > 1 and
                   self.TimeQuantumSpinBox.value() > 0) and
                  (self.ArrivalTimesValueBox.toPlainText() != "" and self.BurstTimesValueBox.toPlainText() != "")):
@@ -272,6 +265,9 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
 
         burst_time_string = self.BurstTimesValueBox.toPlainText()
         burst_time_string = burst_time_string.split(";")
+
+        if self.RandomizedDataRadio.isChecked():
+            return True
 
         if len(arrival_time_string) != self.RunsSpinBox.value() or len(burst_time_string) != self.RunsSpinBox.value():
             return False
@@ -315,35 +311,101 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             jsondata = json.loads(datafile.read())
             datafile.close()
 
-            if int(jsondata["simulationmode"]) == 0:
-                self.MultithreadingRadio.setChecked(True)
+            if "cpumode" in jsondata:
+                if int(jsondata["cpumode"]) == 0:
+                    self.CpucheckBox.setChecked(False)
+                    if "cpudata" in jsondata:
+                        if "cpu1" in jsondata["cpudata"]:
+                            self.Cpu1SpinBox.setValue(int(jsondata["cpudata"]["cpu1"]))
+                        else:
+                            self.Cpu1SpinBox.setValue(0)
+                        if "cpu2" in jsondata["cpudata"]:
+                            self.Cpu2SpinBox.setValue(int(jsondata["cpudata"]["cpu2"]))
+                        else:
+                            self.Cpu2SpinBox.setValue(0)
+                    else:
+                        self.Cpu1SpinBox.setValue(0)
+                        self.Cpu2SpinBox.setValue(0)
+                elif int(jsondata["cpumode"]) == 1:
+                    self.CpucheckBox.setChecked(True)
+                    self.Cpu1SpinBox.setValue(0)
+                    self.Cpu2SpinBox.setValue(0)
             else:
-                self.MultiprocessingRadio.setChecked(True)
+                self.CpucheckBox.setChecked(False)
+                self.Cpu1SpinBox.setValue(0)
+                self.Cpu2SpinBox.setValue(0)
 
-            if int(jsondata["algorithmtype"]) == 0:
-                self.StaticAlgorithmRadio.setChecked(True)
+            if "algorithmtype" in jsondata:
+                if int(jsondata["algorithmtype"]) == 0:
+                    self.StaticAlgorithmRadio.setChecked(True)
+                elif int(jsondata["algorithmtype"]) == 1:
+                    self.DynamicAlgorithmRadio.setChecked(True)
             else:
-                self.DynamicAlgorithmRadio.setChecked(True)
+                self.StaticAlgorithmRadio.autoExclusive(False)
+                self.DynamicAlgorithmRadio.autoExclusive(False)
+                self.StaticAlgorithmRadio.setChecked(False)
+                self.DynamicAlgorithmRadio.setChecked(False)
+                self.StaticAlgorithmRadio.autoExclusive(True)
+                self.DynamicAlgorithmRadio.autoExclusive(True)
 
-            self.AlgorithmSelector.setCurrentIndex(int(jsondata["algorithm1"]))
-            self.Algorithm2Selector.setCurrentIndex(int(jsondata["algorithm2"]))
+            if "algorithm1" in jsondata:
+                self.AlgorithmSelector.setCurrentIndex(int(jsondata["algorithm1"]))
+            else:
+                self.AlgorithmSelector.setCurrentIndex(0)
+            if "algorithm2" in jsondata:
+                self.Algorithm2Selector.setCurrentIndex(int(jsondata["algorithm2"]))
+            else:
+                self.Algorithm2Selector.setCurrentIndex(0)
 
-            if int(jsondata["simulationconfig"]) == 0:
-                self.CustomDataRadio.setChecked(True)
-                if jsondata["data"] is not None:
-                    self.RunsSpinBox.setValue(int(jsondata["data"]["runs"]))
-                    self.ProcessesSpinBox.setValue(int(jsondata["data"]["processes"]))
-                    self.TimeQuantumSpinBox.setValue(int(jsondata["data"]["timequantum"]))
-                    self.ArrivalTimesValueBox.setPlainText(str(jsondata["data"]["arrivaltimes"]))
-                    self.BurstTimesValueBox.setPlainText(str(jsondata["data"]["burstimes"]))
-                else:
+            if "simulationconfig" in jsondata:
+                if int(jsondata["simulationconfig"]) == 0:
+                    self.CustomDataRadio.setChecked(True)
+                    if "data" in jsondata:
+                        if "runs" in jsondata["data"]:
+                            self.RunsSpinBox.setValue(int(jsondata["data"]["runs"]))
+                        else:
+                            self.RunsSpinBox.setValue(0)
+                        if "processes" in jsondata["data"]:
+                            self.ProcessesSpinBox.setValue(int(jsondata["data"]["processes"]))
+                        else:
+                            self.ProcessesSpinBox.setValue(0)
+                        if "timequantum" in jsondata["data"]:
+                            self.TimeQuantumSpinBox.setValue(int(jsondata["data"]["timequantum"]))
+                        else:
+                            self.TimeQuantumSpinBox.setValue(0)
+                        if "arrivaltimes" in jsondata["data"]:
+                            self.ArrivalTimesValueBox.setPlainText(str(jsondata["data"]["arrivaltimes"]))
+                        else:
+                            self.ArrivalTimesValueBox.setValue(0)
+                        if "burstimes" in jsondata["data"]:
+                            self.BurstTimesValueBox.setPlainText(str(jsondata["data"]["burstimes"]))
+                        else:
+                            self.BurstTimesValueBox.setValue(0)
+                    else:
+                        self.RunsSpinBox.setValue(0)
+                        self.ProcessesSpinBox.setValue(0)
+                        self.TimeQuantumSpinBox.setValue(0)
+                        self.ArrivalTimesValueBox.clear()
+                        self.BurstTimesValueBox.clear()
+                elif int(jsondata["simulationconfig"]) == 1:
+                    self.RandomizedDataRadio.setChecked(True)
                     self.RunsSpinBox.setValue(0)
                     self.ProcessesSpinBox.setValue(0)
                     self.TimeQuantumSpinBox.setValue(0)
                     self.ArrivalTimesValueBox.clear()
                     self.BurstTimesValueBox.clear()
             else:
-                self.RandomizedDataRadio.setChecked(True)
+                self.CustomDataRadio.setAutoExclusive(False)
+                self.RandomizedDataRadio.setAutoExclusive(False)
+                self.CustomDataRadio.setChecked(False)
+                self.RandomizedDataRadio.setChecked(False)
+                self.CustomDataRadio.setAutoExclusive(True)
+                self.RandomizedDataRadio.setAutoExclusive(True)
+                self.RunsSpinBox.setValue(0)
+                self.ProcessesSpinBox.setValue(0)
+                self.TimeQuantumSpinBox.setValue(0)
+                self.ArrivalTimesValueBox.clear()
+                self.BurstTimesValueBox.clear()
 
     def save_prop_data(self):
         filename = QFileDialog(self)
@@ -366,41 +428,34 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
 
             try:
                 with open(datafilename, 'w') as json_file:
-                    if self.MultithreadingRadio.isChecked() and not self.MultiprocessingRadio.isChecked():
-                        simulationmode = 0
+                    temp = {"cpumode": self.CpucheckBox.isChecked().__int__()}
+                    if self.CpucheckBox.isChecked():
+                        temp["cpudata"] = None
                     else:
-                        simulationmode = 1
-
+                        temp["cpudata"] = {
+                            "cpu1": self.Cpu1SpinBox.value(),
+                            "cpu2": self.Cpu2SpinBox.value()
+                        }
                     if self.StaticAlgorithmRadio.isChecked() and not self.DynamicAlgorithmRadio.isChecked():
-                        algorithmtype = 0
+                        temp["algorithmtype"] = 0
                     else:
-                        algorithmtype = 1
+                        temp["algorithmtype"] = 1
+
+                    temp["algorithm1"] = self.AlgorithmSelector.currentIndex()
+                    temp["algorithm2"] = self.Algorithm2Selector.currentIndex()
 
                     if self.CustomDataRadio.isChecked() and not self.RandomizedDataRadio.isChecked():
-                        temp = {
-                            "simulationmode": simulationmode,
-                            "algorithmtype": algorithmtype,
-                            "algorithm1": self.AlgorithmSelector.currentIndex(),
-                            "algorithm2": self.Algorithm2Selector.currentIndex(),
-                            "simulationconfig": 0,
-                            "data":
-                                {
-                                    "runs": self.RunsSpinBox.value(),
-                                    "processes": self.ProcessesSpinBox.value(),
-                                    "timequantum": self.TimeQuantumSpinBox.value(),
-                                    "arrivaltimes": self.ArrivalTimesValueBox.toPlainText(),
-                                    "burstimes": self.BurstTimesValueBox.toPlainText()
-                                }
+                        temp["simulationconfig"] = 0
+                        temp["data"] = {
+                            "runs": self.RunsSpinBox.value(),
+                            "processes": self.ProcessesSpinBox.value(),
+                            "timequantum": self.TimeQuantumSpinBox.value(),
+                            "arrivaltimes": self.ArrivalTimesValueBox.toPlainText(),
+                            "burstimes": self.BurstTimesValueBox.toPlainText()
                         }
                     else:
-                        temp = {
-                            "simulationmode": simulationmode,
-                            "algorithmtype": algorithmtype,
-                            "algorithm1": self.AlgorithmSelector.currentIndex(),
-                            "algorithm2": self.Algorithm2Selector.currentIndex(),
-                            "simulationconfig": 1,
-                            "data": None
-                        }
+                        temp["simulationconfig"] = 1
+                        temp["data"] = None
                     json.dump(temp, json_file, indent=4)
                 print(datafilename)
             except IOError:
@@ -458,7 +513,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
 
     def disable_all_settings(self):
         if self.isRunning:
-            self.MultithreadMultiprocGroup.setEnabled(False)
+            self.CpuGroup.setEnabled(False)
             self.StaticDynamicGroup.setEnabled(False)
             self.AlgorithmSelector.setEnabled(False)
             self.Algorithm2Selector.setEnabled(False)
@@ -472,7 +527,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             self.SavePropertiesButton.setEnabled(False)
             self.SaveResultsButton.setEnabled(False)
         else:
-            self.MultithreadMultiprocGroup.setEnabled(True)
+            self.CpuGroup.setEnabled(True)
             self.StaticDynamicGroup.setEnabled(True)
             self.AlgorithmSelector.setEnabled(True)
             self.Algorithm2Selector.setEnabled(True)

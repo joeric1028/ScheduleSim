@@ -90,7 +90,7 @@
          <x>0</x>
          <y>0</y>
          <width>294</width>
-         <height>968</height>
+         <height>1070</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -99,13 +99,13 @@
           <property name="minimumSize">
            <size>
             <width>271</width>
-            <height>950</height>
+            <height>1050</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>271</width>
-            <height>950</height>
+            <height>1050</height>
            </size>
           </property>
           <property name="title">
@@ -155,25 +155,41 @@
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QGroupBox" name="MultithreadMultiprocGroup">
+            <widget class="QGroupBox" name="CpuGroup">
              <property name="title">
               <string/>
              </property>
              <property name="flat">
               <bool>false</bool>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_7">
-              <item>
-               <widget class="QRadioButton" name="MultithreadingRadio">
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="1" column="0">
+               <widget class="QLabel" name="Cpu1String">
                 <property name="text">
-                 <string>Multithreading</string>
+                 <string>CPU 1 Speed:</string>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QRadioButton" name="MultiprocessingRadio">
+              <item row="2" column="0">
+               <widget class="QLabel" name="Cpu2String">
                 <property name="text">
-                 <string>Multiprocessing</string>
+                 <string>CPU 2 Speed:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="Cpu1SpinBox"/>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="Cpu2SpinBox"/>
+              </item>
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="CpucheckBox">
+                <property name="text">
+                 <string>1 CPU only</string>
+                </property>
+                <property name="tristate">
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>

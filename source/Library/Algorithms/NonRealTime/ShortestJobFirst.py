@@ -11,6 +11,7 @@ class ShortestJobFirst:
         self.averageWaitingTime = 0
         self.averageTurnAroundTime = 0
         self.__start = 0
+        self.__completedProcessData = []
 
     def createprocess(self, processdata):  # this function will create and gather the data of each of the processes
         self.__start = time.time()
@@ -83,6 +84,9 @@ class ShortestJobFirst:
 
             totalTurnAroundTime = totalTurnAroundTime + turnAroundTime
             processdata[i].append(turnAroundTime)
+        if len(processdata) == 0:
+            self.averageTurnAroundTime = 0
+            return
         self.averageTurnAroundTime = totalTurnAroundTime / len(processdata)
         # averageTurnAroundTime = totalTurnAroundTime / numOfProcesses
 
@@ -98,6 +102,9 @@ class ShortestJobFirst:
 
             totalWaitingTime = totalWaitingTime + waitingTime
             processdata[i].append(waitingTime)
+        if len(processdata) == 0:
+            self.averageWaitingTime = 0
+            return
         self.averageWaitingTime = totalWaitingTime / len(processdata)
         # averageWaitingTime = totalWaitingTime / noOfProcesses
 
@@ -115,6 +122,7 @@ class ShortestJobFirst:
         print(f'Average Turnaround Time: {self.averageTurnAroundTime}')
         print(f'Average Waiting Time: {self.averageWaitingTime}')
         end = time.time()
+        self.__completedProcessData = processdata
         print(f"Shortest-Job-First Execution Time = {end - self.__start} seconds\n\n")
 
     def getavgwaittime(self):
@@ -122,3 +130,6 @@ class ShortestJobFirst:
 
     def getavgturnaroundtime(self):
         return self.averageTurnAroundTime
+
+    def getcompletedprocessdata(self):
+        return self.__completedProcessData

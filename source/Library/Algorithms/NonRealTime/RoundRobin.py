@@ -14,6 +14,7 @@ class RoundRobin:
         self.__waitList = []
         self.__start = 0
         self.__execProcess = 0
+        self.__completedProcessData = []
 
     def createprocess(self, processdata, quantum):
         # this function will create and gather the data of each of the processes
@@ -143,6 +144,9 @@ class RoundRobin:
 
             totalTurnAroundTime = totalTurnAroundTime + turnAroundTime
             processdata[i].append(turnAroundTime)
+        if len(processdata) == 0:
+            self.__averageTurnAroundTime = 0
+            return
         self.__averageTurnAroundTime = totalTurnAroundTime / len(processdata)
         # avgTurnAroundTime = totalTurnAroundTime / numOfProcesses
 
@@ -155,6 +159,9 @@ class RoundRobin:
 
             totalWaitingTime = totalWaitingTime + waitingTime
             processdata[i].append(waitingTime)
+        if len(processdata) == 0:
+            self.__averageWaitingTime = 0
+            return
         self.__averageWaitingTime = totalWaitingTime / len(processdata)
         # avgWaitingTime = totalWaitingTime / numOfProcesses
 
@@ -172,6 +179,8 @@ class RoundRobin:
         print(f'Average Turnaround Time: {self.__averageTurnAroundTime}')
         print(f'Average Waiting Time: {self.__averageWaitingTime}')
 
+        self.__completedProcessData = processdata
+
         # print(f'Sequence of Processes: {self.execProcess}')
 
         for x in range(len(processdata)):
@@ -185,3 +194,6 @@ class RoundRobin:
 
     def getavgwaittime(self):
         return self.__averageWaitingTime
+
+    def getcompletedprocessdata(self):
+        return self.__completedProcessData

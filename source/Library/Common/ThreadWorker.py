@@ -9,6 +9,7 @@ class ThreadWorker:
         self.processdata = process[2]
         self.quantum = process[3]
         self.mode = mode
+        self.completedProcessData = None
         self.waitingRR = None
         self.waitingSJF = None
         self.worker = 0
@@ -22,7 +23,9 @@ class ThreadWorker:
             RR = RoundRobin()
             RR.createprocess(self.processdata, self.quantum)
             self.waitingRR = RR.getavgwaittime()
+            self.completedProcessData = RR.getcompletedprocessdata()
         elif self.algo == 1:
             SJF = ShortestJobFirst()
             SJF.createprocess(self.processdata)
             self.waitingSJF = SJF.getavgwaittime()
+            self.completedProcessData = SJF.getcompletedprocessdata()
