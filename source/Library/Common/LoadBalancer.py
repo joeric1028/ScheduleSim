@@ -47,7 +47,7 @@ class LoadBalancer(QObject):
                     if self.stopRunning:
                         return
 
-                    cpu_1, cpu_2, processes_data = self._load_balance(process_data, otherargs[0][0], otherargs[0][1])
+                    cpu_1, cpu_2, process_data = self._load_balance(process_data, otherargs[0][0], otherargs[0][1])
                     tempworkercpu1 = ThreadWorker([item[0], item[1], cpu_1, item[3]])
                     tempworkercpu2 = ThreadWorker([item[0], item[1], cpu_2, item[3]])
 
