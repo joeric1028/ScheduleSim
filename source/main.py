@@ -427,6 +427,12 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                 self.ArrivalTimesValueBox.clear()
                 self.BurstTimesValueBox.clear()
 
+            message = QMessageBox()
+            message.setWindowTitle(self.windowTitle())
+            message.setIcon(QMessageBox.Information)
+            message.setText(f"Successfuly load Properties file '{filename[0]}'")
+            message.exec()
+
     def save_prop_data(self):
         filename = QFileDialog(self)
         filename.setWindowTitle("Save Properties Save File")
@@ -477,10 +483,20 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                         temp["simulationconfig"] = 1
                         temp["data"] = None
                     json.dump(temp, json_file, indent=4)
-                print(datafilename)
+                print(f"Successfully saved file at {datafilename}")
+                message = QMessageBox()
+                message.setWindowTitle(self.windowTitle())
+                message.setIcon(QMessageBox.Information)
+                message.setText(f"Successfully saved file at {datafilename}")
+                message.exec()
             except IOError:
                 print(IOError)
                 print(f"File '{datafilename}' is currently in use or not accessible")
+                message = QMessageBox()
+                message.setWindowTitle(self.windowTitle())
+                message.setIcon(QMessageBox.Warning)
+                message.setText(f"File '{datafilename}' is currently in use or not accessible")
+                message.exec()
 
     def update_graph(self):
         result = self.result
@@ -586,7 +602,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                 print(f"File '{datafilename}' is currently in use or not accessible")
             finally:
                 message = QMessageBox(self)
-                message.setText(f"Successfully saved Image File: {datafilename}")
+                message.setText(f"Successfully saved Image File at '{datafilename}'")
                 message.setWindowTitle(self.windowTitle())
                 message.setIcon(QMessageBox.Information)
                 message.setStandardButtons(QMessageBox.Ok)

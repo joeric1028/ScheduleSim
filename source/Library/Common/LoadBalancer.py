@@ -42,6 +42,7 @@ class LoadBalancer(QObject):
             tempworkercpu1 = None
 
             if otherargs[0][2] == 0:
+                count_attempt = 0
                 while len(process_data) != 0:
                     if self.stopRunning:
                         return
@@ -49,6 +50,13 @@ class LoadBalancer(QObject):
                     cpu_1, cpu_2, processes_data = self._load_balance(process_data, otherargs[0][0], otherargs[0][1])
                     tempworkercpu1 = ThreadWorker([item[0], item[1], cpu_1, item[3]])
                     tempworkercpu2 = ThreadWorker([item[0], item[1], cpu_2, item[3]])
+
+                    if len(cpu_1) == 0 and len(cpu_2) == 0:
+                        count_attempt += 1
+                        if count_attempt == 10:
+                            print("CPU's load is empty and exceeded 10 attempt. Stopping simulation.")
+                            self.finished.emit()
+                            return
 
                     if temp_Algo_Mode == 0:
                         tempWaitingRR += tempworkercpu1.waitingRR
