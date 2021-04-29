@@ -47,14 +47,14 @@ class LoadBalancer(QObject):
                     if self.stopRunning:
                         return
 
-                    cpu_1, cpu_2, processes_data = self._load_balance(process_data, otherargs[0][0], otherargs[0][1])
+                    cpu_1, cpu_2, process_data = self._load_balance(process_data, otherargs[0][0], otherargs[0][1])
                     tempworkercpu1 = ThreadWorker([item[0], item[1], cpu_1, item[3]])
                     tempworkercpu2 = ThreadWorker([item[0], item[1], cpu_2, item[3]])
 
                     if len(cpu_1) == 0 and len(cpu_2) == 0:
                         count_attempt += 1
                         if count_attempt == 10:
-                            print("CPU's load is empty and exceeded 10 attempt. Stopping simulation.")
+                            print("CPU's load is empty and exceeded 10 attempts. Stopping simulation.")
                             self.finished.emit()
                             return
 

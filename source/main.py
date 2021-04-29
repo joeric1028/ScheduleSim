@@ -100,9 +100,13 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         if self.CpucheckBox.isChecked():
             self.Cpu1SpinBox.setEnabled(False)
             self.Cpu2SpinBox.setEnabled(False)
+            self.Cpu1String.setEnabled(False)
+            self.Cpu2String.setEnabled(False)
         else:
             self.Cpu1SpinBox.setEnabled(True)
             self.Cpu2SpinBox.setEnabled(True)
+            self.Cpu1String.setEnabled(True)
+            self.Cpu2String.setEnabled(True)
 
         self.data_verification()
 
