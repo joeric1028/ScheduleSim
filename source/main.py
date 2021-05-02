@@ -45,6 +45,8 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.DynamicAlgorithmRadio.setEnabled(False)
 
         self.setWindowTitle("Schedule Simulator v0.0.1")
+        self.Cpu1SpinBox.setMaximum(100000)
+        self.Cpu2SpinBox.setMaximum(100000)
         self.RunsSpinBox.setMaximum(3)
         self.ProcessesSpinBox.setMaximum(5)
         self.TimeQuantumSpinBox.setMaximum(10)
@@ -98,9 +100,13 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         if self.CpucheckBox.isChecked():
             self.Cpu1SpinBox.setEnabled(False)
             self.Cpu2SpinBox.setEnabled(False)
+            self.Cpu1String.setEnabled(False)
+            self.Cpu2String.setEnabled(False)
         else:
             self.Cpu1SpinBox.setEnabled(True)
             self.Cpu2SpinBox.setEnabled(True)
+            self.Cpu1String.setEnabled(True)
+            self.Cpu2String.setEnabled(True)
 
         self.data_verification()
 
@@ -118,11 +124,16 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             if self.StaticAlgorithmRadio.isChecked():
                 quantum = random.randint(1, self.TimeQuantumSpinBox.maximum())
                 self.TimeQuantumSpinBox.setValue(quantum)
+                temp_min_cpu_speed = None
 
-                if self.Cpu1SpinBox.value() < self.Cpu2SpinBox.value():
+                if self.CpucheckBox.isChecked():
+                    temp_min_cpu_speed = 100000
+                elif self.Cpu1SpinBox.value() < self.Cpu2SpinBox.value():
                     temp_min_cpu_speed = self.Cpu1SpinBox.value()
-                else:
+                elif self.Cpu1SpinBox.value() > self.Cpu2SpinBox.value():
                     temp_min_cpu_speed = self.Cpu2SpinBox.value()
+                elif self.Cpu1SpinBox.value() == self.Cpu2SpinBox.value():
+                    temp_min_cpu_speed = self.Cpu1SpinBox.value()
 
                 for i in range(testrun):
                     temprunsdataRR = []
@@ -244,15 +255,18 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         print("Sending Process Data to Load Balancer :" + self.processdata.__str__())
 
     def data_verification(self):
-        if (self.CpucheckBox.isChecked() or self.Cpu1SpinBox.value() > 0 and self.Cpu2SpinBox.value() > 0) and \
+        if (self.CpucheckBox.isChecked() or (not self.CpucheckBox.isChecked() and self.Cpu1SpinBox.value() > 0) and
+            self.Cpu2SpinBox.value() > 0) and \
                 (self.StaticAlgorithmRadio.isChecked() or self.DynamicAlgorithmRadio.isChecked()) and \
                 (self.AlgorithmSelector.currentIndex() != -1 or self.Algorithm2Selector.currentIndex() != -1) and \
                 (self.CustomDataRadio.isChecked() or self.RandomizedDataRadio.isChecked()) and \
                 (self.AlgorithmSelector.currentIndex() != self.Algorithm2Selector.currentIndex() and
                  self.arrival_burst_time_data_verification() and
-                 (self.RunsSpinBox.value() > 1 and self.ProcessesSpinBox.value() > 1 and
-                  self.TimeQuantumSpinBox.value() > 0) and
-                 (self.ArrivalTimesValueBox.toPlainText() != "" and self.BurstTimesValueBox.toPlainText() != "")):
+                 (self.RandomizedDataRadio.isChecked() or self.RunsSpinBox.value() > 1 and
+                  self.ProcessesSpinBox.value() > 1 and
+                  self.RandomizedDataRadio.isChecked() or self.TimeQuantumSpinBox.value() > 0) and
+                 (self.RandomizedDataRadio.isChecked() or self.ArrivalTimesValueBox.toPlainText() != "" and
+                  self.BurstTimesValueBox.toPlainText() != "")):
             self.StartSimulationButton.setEnabled(True)
             self.StartSimulationButton.setStyleSheet("background-color: rgb(255, 0, 0);color: rgb(255, 255, 255);")
         else:
@@ -260,17 +274,26 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
             self.StartSimulationButton.setStyleSheet("")
 
     def arrival_burst_time_data_verification(self):
+        if self.RandomizedDataRadio.isChecked():
+            return True
+
         arrival_time_string = self.ArrivalTimesValueBox.toPlainText()
         arrival_time_string = arrival_time_string.split(";")
 
         burst_time_string = self.BurstTimesValueBox.toPlainText()
         burst_time_string = burst_time_string.split(";")
 
-        if self.RandomizedDataRadio.isChecked():
-            return True
-
         if len(arrival_time_string) != self.RunsSpinBox.value() or len(burst_time_string) != self.RunsSpinBox.value():
             return False
+
+        lowest_cpu_speed = None
+
+        if self.Cpu1SpinBox.value() < self.Cpu2SpinBox.value():
+            lowest_cpu_speed = self.Cpu1SpinBox.value()
+        elif self.Cpu1SpinBox.value() > self.Cpu2SpinBox.value():
+            lowest_cpu_speed = self.Cpu2SpinBox.value()
+        elif self.Cpu1SpinBox.value() == self.Cpu2SpinBox.value():
+            lowest_cpu_speed = self.Cpu1SpinBox.value()
 
         for i in range(self.RunsSpinBox.value()):
             arrival_time_string[i] = arrival_time_string[i].split(",")
@@ -283,7 +306,8 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
 
             for j in range(len(burst_time_string[i])):
                 if len(burst_time_string[i]) != self.ProcessesSpinBox.value() or burst_time_string[i][j] == "" \
-                        or not burst_time_string[i][j].isdigit():
+                        or not burst_time_string[i][j].isdigit() \
+                        or (not self.CpucheckBox.isChecked() and int(burst_time_string[i][j]) > lowest_cpu_speed):
                     return False
         return True
 
@@ -407,6 +431,12 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                 self.ArrivalTimesValueBox.clear()
                 self.BurstTimesValueBox.clear()
 
+            message = QMessageBox()
+            message.setWindowTitle(self.windowTitle())
+            message.setIcon(QMessageBox.Information)
+            message.setText(f"Successfuly load Properties file '{filename[0]}'")
+            message.exec()
+
     def save_prop_data(self):
         filename = QFileDialog(self)
         filename.setWindowTitle("Save Properties Save File")
@@ -457,10 +487,20 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                         temp["simulationconfig"] = 1
                         temp["data"] = None
                     json.dump(temp, json_file, indent=4)
-                print(datafilename)
+                print(f"Successfully saved file at {datafilename}")
+                message = QMessageBox()
+                message.setWindowTitle(self.windowTitle())
+                message.setIcon(QMessageBox.Information)
+                message.setText(f"Successfully saved file at {datafilename}")
+                message.exec()
             except IOError:
                 print(IOError)
                 print(f"File '{datafilename}' is currently in use or not accessible")
+                message = QMessageBox()
+                message.setWindowTitle(self.windowTitle())
+                message.setIcon(QMessageBox.Warning)
+                message.setText(f"File '{datafilename}' is currently in use or not accessible")
+                message.exec()
 
     def update_graph(self):
         result = self.result
@@ -566,7 +606,7 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
                 print(f"File '{datafilename}' is currently in use or not accessible")
             finally:
                 message = QMessageBox(self)
-                message.setText(f"Successfully saved Image File: {datafilename}")
+                message.setText(f"Successfully saved Image File at '{datafilename}'")
                 message.setWindowTitle(self.windowTitle())
                 message.setIcon(QMessageBox.Information)
                 message.setStandardButtons(QMessageBox.Ok)
