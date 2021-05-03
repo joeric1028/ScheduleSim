@@ -35,11 +35,9 @@ class LoadBalancer(QObject):
 
             # Get the next item in the queue
             item = item_queue.get()
-            tempWaitingRR = 0
-            tempWaitingSJF = 0
+            tempProcessData = []
             temp_Algo_Mode = item[0]
             process_data = item[2]
-            tempworkercpu1 = None
 
             if otherargs[0][2] == 0:
                 count_attempt = 0
@@ -51,6 +49,13 @@ class LoadBalancer(QObject):
                     tempworkercpu1 = ThreadWorker([item[0], item[1], cpu_1, item[3]])
                     tempworkercpu2 = ThreadWorker([item[0], item[1], cpu_2, item[3]])
 
+                    if temp_Algo_Mode == 0:
+                        tempProcessData += tempworkercpu1.completedProcessData
+                        tempProcessData += tempworkercpu2.completedProcessData
+                    elif temp_Algo_Mode == 1:
+                        tempProcessData += tempworkercpu1.completedProcessData
+                        tempProcessData += tempworkercpu2.completedProcessData
+
                     if len(cpu_1) == 0 and len(cpu_2) == 0:
                         count_attempt += 1
                         if count_attempt == 10:
@@ -58,19 +63,16 @@ class LoadBalancer(QObject):
                             self.finished.emit()
                             return
 
-                    if temp_Algo_Mode == 0:
-                        tempWaitingRR += tempworkercpu1.waitingRR
-                        tempWaitingRR += tempworkercpu2.waitingRR
-                    elif temp_Algo_Mode == 1:
-                        tempWaitingSJF += tempworkercpu1.waitingSJF
-                        tempWaitingSJF += tempworkercpu2.waitingSJF
+                tempworker = ThreadWorker([item[0], item[1], tempProcessData, item[3]], True)
+                tempworker.calculate_waiting_time()
 
                 if temp_Algo_Mode == 0:
-                    result_queue.put([tempworkercpu1.algo, tempworkercpu1.runs, tempWaitingRR])
-                    self.update_result.emit([tempworkercpu1.algo, tempworkercpu1.runs, tempWaitingRR])
+                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingRR])
+                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingRR])
                 elif temp_Algo_Mode == 1:
-                    result_queue.put([tempworkercpu1.algo, tempworkercpu1.runs, tempWaitingSJF])
-                    self.update_result.emit([tempworkercpu1.algo, tempworkercpu1.runs, tempWaitingSJF])
+                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingSJF])
+                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingSJF])
+
             elif otherargs[0][2] == 1:
                 tempworker = ThreadWorker([item[0], item[1], process_data, item[3]])
 

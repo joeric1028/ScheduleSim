@@ -17,6 +17,10 @@ class ShortestJobFirst:
         self.__start = time.time()
         self.__executeprocess(processdata)
 
+    def createprocess_calculate_waiting_time(self, processdata):
+        self.__start = time.time()
+        self.__calculatewaitingtime(processdata)
+
     def __executeprocess(self, processdata):  # this will execute the shortest job first algorithm
         startTime = []
         exitTime = []

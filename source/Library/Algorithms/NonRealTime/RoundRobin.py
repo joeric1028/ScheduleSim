@@ -21,6 +21,10 @@ class RoundRobin:
         self.__start = time.time()
         self.__executeprocesses(processdata, quantum)
 
+    def createprocess_calculate_waiting_time(self, processdata):
+        self.__start = time.time()
+        self.__calculatewaitingtime(processdata)
+
     def __executeprocesses(self, processdata, quantum):  # this will execute the round robin algorithm
         startTime = []
         exitTime = []
