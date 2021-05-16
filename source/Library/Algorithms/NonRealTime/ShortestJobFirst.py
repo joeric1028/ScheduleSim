@@ -15,13 +15,16 @@ class ShortestJobFirst:
 
     def createprocess(self, processdata):  # this function will create and gather the data of each of the processes
         self.__start = time.time()
-        self.__executeprocess(processdata)
+        self.executeprocess(processdata)
+        self.calculateturnaroundtime(self.__completedProcessData)
+        self.calculatewaitingtime(self.__completedProcessData)
+        self.printdata(self.__completedProcessData)
 
     def createprocess_calculate_waiting_time(self, processdata):
         self.__start = time.time()
-        self.__calculatewaitingtime(processdata)
+        self.calculatewaitingtime(processdata)
 
-    def __executeprocess(self, processdata):  # this will execute the shortest job first algorithm
+    def executeprocess(self, processdata):  # this will execute the shortest job first algorithm
         startTime = []
         exitTime = []
         sTime = 0
@@ -72,11 +75,9 @@ class ShortestJobFirst:
                 processdata[kj][3] = 1
                 processdata[kj].append(eTime)
 
-        self.__calculateturnaroundtime(processdata)
-        self.__calculatewaitingtime(processdata)
-        self.printdata(processdata)
+        self.__completedProcessData = processdata
 
-    def __calculateturnaroundtime(self, processdata):
+    def calculateturnaroundtime(self, processdata):
         totalTurnAroundTime = 0
         for i in range(len(processdata)):
             if len(processdata[i]) < 4:  # TODO: Could not calculate unfinished process Data. partial Fixed.
@@ -94,7 +95,7 @@ class ShortestJobFirst:
         self.averageTurnAroundTime = totalTurnAroundTime / len(processdata)
         # averageTurnAroundTime = totalTurnAroundTime / numOfProcesses
 
-    def __calculatewaitingtime(self, processdata):
+    def calculatewaitingtime(self, processdata):
         totalWaitingTime = 0
         for i in range(len(processdata)):
             if len(processdata[i]) < 6:  # TODO: Same problem occured and partially fixed.

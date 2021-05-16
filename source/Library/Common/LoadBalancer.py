@@ -60,8 +60,7 @@ class LoadBalancer(QObject):
                         count_attempt += 1
                         if count_attempt == 10:
                             print("CPU's load is empty and exceeded 10 attempts. Stopping simulation.")
-                            self.finished.emit()
-                            return
+                            break
 
                 tempworker = ThreadWorker([item[0], item[1], tempProcessData, item[3]], True)
                 tempworker.calculate_waiting_time()
