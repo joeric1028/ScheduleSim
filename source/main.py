@@ -47,8 +47,8 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
         self.setWindowTitle("Schedule Simulator v0.0.1")
         self.Cpu1SpinBox.setMaximum(100000)
         self.Cpu2SpinBox.setMaximum(100000)
-        self.RunsSpinBox.setMaximum(3)
-        self.ProcessesSpinBox.setMaximum(5)
+        self.RunsSpinBox.setMaximum(5)
+        self.ProcessesSpinBox.setMaximum(10)
         self.TimeQuantumSpinBox.setMaximum(10)
         self.data_verification()
 

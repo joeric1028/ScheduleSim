@@ -319,11 +319,11 @@ class Ui_MplMainWindow(object):
         self.SimulationConfigString.setText(_translate("MplMainWindow", "Simulation Configuration"))
         self.CustomDataRadio.setText(_translate("MplMainWindow", "Custom Data"))
         self.RandomizedDataRadio.setText(_translate("MplMainWindow", "Random Data"))
-        self.NoteString.setText(_translate("MplMainWindow", "<html><head/><body><p align=\"center\"><span style=\"\n"
-                                                            "               font-weight:600; color:#ff0004;\">Note:</span><span style=\" color:#ff0004;\">\n"
-                                                            "               Custom data input will only allow <br/>up to 3 simulation runs and up to 5 <br/>processes for\n"
-                                                            "               each run.</span></p></body></html>\n"
-                                                            "              "))
+        self.NoteString.setText(_translate("MplMainWindow", "<html><head/><body><p align=\"center\"><span style=\" "
+                                                            "font-weight:600; color:#ff0004;\">Note:</span><span "
+                                                            "style=\" color:#ff0004;\"> Custom data input will only "
+                                                            "allow <br/>up to 5 simulation runs and up to 10 "
+                                                            "<br/>processes for each run.</span></p></body></html>"))
         self.RunsString.setText(_translate("MplMainWindow", "Number of Runs:"))
         self.ProcessesString.setText(_translate("MplMainWindow", "Number of Processes:"))
         self.ProcessPropString.setText(_translate("MplMainWindow", "Process Properties:"))
