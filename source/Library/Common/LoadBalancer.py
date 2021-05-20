@@ -18,6 +18,8 @@ class LoadBalancer(QObject):
         self.isRunning = False
         self.stopRunning = False
         self.load_balance_process = None
+        self.cpu1_speed = None
+        self.cpu2_speed = None
         parent.startSimulate.connect(self.start_thread_process)
         parent.stopSimulate.connect(self.stop)
 
@@ -45,7 +47,9 @@ class LoadBalancer(QObject):
                     if self.stopRunning:
                         return
 
-                    cpu_1, cpu_2, process_data = self._load_balance(process_data, otherargs[0][0], otherargs[0][1])
+                    self.cpu1_speed = otherargs[0][0]
+                    self.cpu2_speed = otherargs[0][1]
+                    cpu_1, cpu_2, process_data = self._load_balance(process_data)
                     tempworkercpu1 = ThreadWorker([item[0], item[1], cpu_1, item[3]])
                     tempworkercpu2 = ThreadWorker([item[0], item[1], cpu_2, item[3]])
 
@@ -86,14 +90,14 @@ class LoadBalancer(QObject):
                 print("Finished Simulation")
                 self.finished.emit()
 
-    def _load_balance(self, process_data, cpu1_speed, cpu2_speed):
+    def _load_balance(self, process_data):
         cpu1 = []
         cpu2 = []
         x = 0
         i = 0
         while i < len(process_data):
-            if x < cpu1_speed:
-                if x + process_data[i][2] < cpu1_speed:
+            if x < self.cpu1_speed:
+                if x + process_data[i][2] < self.cpu1_speed:
                     x += process_data[i][2]
                     cpu1.append(process_data[i])
                     process_data.pop(i)
@@ -103,20 +107,20 @@ class LoadBalancer(QObject):
         y = 0
         j = 0
         while j < len(process_data):
-            if y < cpu2_speed:
-                if y + process_data[j][2] < cpu1_speed:
+            if y < self.cpu2_speed:
+                if y + process_data[j][2] < self.cpu1_speed:
                     y += process_data[j][2]
                     cpu2.append(process_data[j])
                     process_data.pop(j)
             else:
                 break
             j += 1
-        if cpu1_speed > cpu2_speed:
-            ratio = cpu1_speed / cpu2_speed
+        if self.cpu1_speed > self.cpu2_speed:
+            ratio = self.cpu1_speed / self.cpu2_speed
             for k in range(len(cpu2)):
                 cpu2[k][2] *= ratio
         else:
-            ratio = cpu2_speed / cpu1_speed
+            ratio = self.cpu2_speed / self.cpu1_speed
             for m in range(len(cpu1)):
                 cpu1[m][2] *= ratio
 

@@ -6,17 +6,17 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from source.Library.Common.LoadBalancer import LoadBalancer
-from source.Library.UI.schedulesim_ui import Ui_MplMainWindow
+from source.Library.UI.schedulesim_ui import UiMplMainWindow
 
 
-class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
+class DesignerMainWindow(QMainWindow, UiMplMainWindow):
     worker = QThread()
     startSimulate = pyqtSignal(list)
     stopSimulate = pyqtSignal()
 
     def __init__(self, parent=None):
         super(DesignerMainWindow, self).__init__(parent)
-        self.setupUi(self)
+        self.setupui(self)
 
         self.Cpu1SpinBox.valueChanged.connect(self.data_verification)
         self.Cpu2SpinBox.valueChanged.connect(self.data_verification)

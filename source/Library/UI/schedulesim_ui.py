@@ -13,13 +13,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from source.Library.UI.mplwidget import MplWidget
 
 
-class Ui_MplMainWindow(object):
-    def setupUi(self, MplMainWindow):
-        MplMainWindow.setObjectName("MplMainWindow")
-        MplMainWindow.resize(800, 600)
-        MplMainWindow.setMinimumSize(QtCore.QSize(800, 600))
-        MplMainWindow.setSizeIncrement(QtCore.QSize(10, 10))
-        self.centralwidget = QtWidgets.QWidget(MplMainWindow)
+class UiMplMainWindow(object):
+    def setupui(self, mplmainwindow):
+        mplmainwindow.setObjectName("MplMainWindow")
+        mplmainwindow.resize(800, 600)
+        mplmainwindow.setMinimumSize(QtCore.QSize(800, 600))
+        mplmainwindow.setSizeIncrement(QtCore.QSize(10, 10))
+        self.centralwidget = QtWidgets.QWidget(mplmainwindow)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
                                            QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
@@ -298,14 +298,14 @@ class Ui_MplMainWindow(object):
         self.verticalLayout.addWidget(self.SettingsBox)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.horizontalLayout_10.addWidget(self.scrollArea)
-        MplMainWindow.setCentralWidget(self.centralwidget)
+        mplmainwindow.setCentralWidget(self.centralwidget)
 
-        self.retranslateUi(MplMainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MplMainWindow)
+        self.retranslateUi(mplmainwindow)
+        QtCore.QMetaObject.connectSlotsByName(mplmainwindow)
 
-    def retranslateUi(self, MplMainWindow):
+    def retranslateUi(self, mplmainwindow):
         _translate = QtCore.QCoreApplication.translate
-        MplMainWindow.setWindowTitle(_translate("MplMainWindow", "Schedule Simulator"))
+        mplmainwindow.setWindowTitle(_translate("MplMainWindow", "Schedule Simulator"))
         self.SettingsString.setText(_translate("MplMainWindow", "Settings"))
         self.SimulationEnvString.setText(_translate("MplMainWindow", "Simulation Environment"))
         self.Cpu1String.setText(_translate("MplMainWindow", "CPU 1 Speed:"))
@@ -338,9 +338,10 @@ class Ui_MplMainWindow(object):
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MplMainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MplMainWindow()
-    ui.setupUi(MplMainWindow)
+    ui = UiMplMainWindow()
+    ui.setupui(MplMainWindow)
     MplMainWindow.show()
     sys.exit(app.exec_())
