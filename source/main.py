@@ -43,6 +43,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
 
         # TODO: Disabled Dynamic Algorithm Selection
         self.DynamicAlgorithmRadio.setEnabled(False)
+        self.DynamicAlgorithmRadio.setHidden(True)
 
         self.setWindowTitle("Schedule Simulator v0.0.1")
         self.Cpu1SpinBox.setMaximum(100000)
