@@ -6,17 +6,17 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from source.Library.Common.LoadBalancer import LoadBalancer
-from source.Library.UI.schedulesim_ui import Ui_MplMainWindow
+from source.Library.UI.schedulesim_ui import UiMplMainWindow
 
 
-class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
+class DesignerMainWindow(QMainWindow, UiMplMainWindow):
     worker = QThread()
     startSimulate = pyqtSignal(list)
     stopSimulate = pyqtSignal()
 
     def __init__(self, parent=None):
         super(DesignerMainWindow, self).__init__(parent)
-        self.setupUi(self)
+        self.setupui(self)
 
         self.Cpu1SpinBox.valueChanged.connect(self.data_verification)
         self.Cpu2SpinBox.valueChanged.connect(self.data_verification)
@@ -43,12 +43,13 @@ class DesignerMainWindow(QMainWindow, Ui_MplMainWindow):
 
         # TODO: Disabled Dynamic Algorithm Selection
         self.DynamicAlgorithmRadio.setEnabled(False)
+        self.DynamicAlgorithmRadio.setHidden(True)
 
         self.setWindowTitle("Schedule Simulator v0.0.1")
         self.Cpu1SpinBox.setMaximum(100000)
         self.Cpu2SpinBox.setMaximum(100000)
-        self.RunsSpinBox.setMaximum(3)
-        self.ProcessesSpinBox.setMaximum(5)
+        self.RunsSpinBox.setMaximum(5)
+        self.ProcessesSpinBox.setMaximum(10)
         self.TimeQuantumSpinBox.setMaximum(10)
         self.data_verification()
 

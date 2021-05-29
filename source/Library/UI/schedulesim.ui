@@ -313,8 +313,8 @@
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot;
                font-weight:600; color:#ff0004;&quot;&gt;Note:&lt;/span&gt;&lt;span style=&quot; color:#ff0004;&quot;&gt;
-               Custom data input will only allow &lt;br/&gt;up to 3 simulation runs and up to 5 &lt;br/&gt;processes for
-               each run.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+               Custom data input will only allow &lt;br/&gt;up to 5 simulation runs and up to 10 &lt;br/&gt;processes
+               for each run.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
               </string>
              </property>
             </widget>
