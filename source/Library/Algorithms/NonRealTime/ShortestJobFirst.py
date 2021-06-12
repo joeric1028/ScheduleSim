@@ -23,6 +23,7 @@ class ShortestJobFirst:
     def createprocess_calculate_waiting_time(self, processdata):
         self.__start = time.time()
         self.calculatewaitingtime(processdata)
+        self.calculateturnaroundtime(processdata)
 
     def executeprocess(self, processdata):  # this will execute the shortest job first algorithm
         startTime = []
@@ -116,8 +117,14 @@ class ShortestJobFirst:
     def printdata(self, processdata):
         processdata.sort(key=lambda x: x[0])  # this will sort the processes by their IDs
 
-        print("Shortest Job First Algorithm Simulation Result\n\n"
-              "processID  arrivalTime  burstTime      Completed  Completion_Time  turnAroundTime  WaitTime")
+        print("Shortest Job First Algorithm Simulation Results\n\n"
+              "Process ID   "
+              "Arrival Time        "
+              "Burst Time         "
+              "Completed      "
+              "Completion Time     "
+              "Turnaround Time        "
+              "Waiting Time")
 
         for i in range(len(processdata)):
             for j in range(len(processdata[i])):
