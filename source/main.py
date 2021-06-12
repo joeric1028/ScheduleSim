@@ -669,37 +669,6 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
                 message.setStandardButtons(QMessageBox.Ok)
                 message.exec()
 
-        filename = QFileDialog(self)
-        filename.setWindowTitle("Save Results text File")
-        filename.setFileMode(QFileDialog.ExistingFile)
-        filename.setViewMode(QFileDialog.List)
-        filename.setAcceptMode(QFileDialog.AcceptSave)
-        filename.setNameFilters([self.tr("text (*.txt)")])
-        filename.setDirectory(directory[0])
-
-        if filename.exec():
-            datafilename = filename.selectedFiles()[0]
-            try:
-                createfile = open(datafilename, 'x')
-                createfile.close()
-            except IOError:
-                print("File is already created!")
-
-            try:
-                editfile = open(datafilename, 'w')
-                editfile.write(self.consoleplainTextEdit.toPlainText())
-                editfile.close()
-            except IOError:
-                print(IOError)
-                print(f"File '{datafilename}' is currently in use or not accessible")
-            finally:
-                message = QMessageBox(self)
-                message.setText(f"Successfully saved text File at '{datafilename}'")
-                message.setWindowTitle(self.windowTitle())
-                message.setIcon(QMessageBox.Information)
-                message.setStandardButtons(QMessageBox.Ok)
-                message.exec()
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
