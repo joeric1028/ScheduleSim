@@ -32,24 +32,41 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_10">
-    <item>
-     <widget class="MplWidget" name="mplwidget" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-     </widget>
+   <layout class="QGridLayout" name="gridLayout_3">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="MplWidget" name="mplwidget" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="consoleplainTextEdit">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>150</height>
+         </size>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
-    <item>
+    <item row="0" column="1">
      <widget class="QScrollArea" name="scrollArea">
       <property name="minimumSize">
        <size>
@@ -139,8 +156,85 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="SimulationEnvString">
+           <item row="16" column="0">
+            <widget class="QGroupBox" name="ArrivalGroup">
+             <property name="title">
+              <string/>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QLabel" name="ArrivalTimesString">
+                <property name="font">
+                 <font>
+                  <family>Open Sans</family>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Arrival Times:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPlainTextEdit" name="ArrivalTimesValueBox"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="19" column="0">
+            <widget class="QPushButton" name="SaveResultsButton">
+             <property name="font">
+              <font>
+               <family>Open Sans</family>
+              </font>
+             </property>
+             <property name="text">
+              <string>Save Results</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QComboBox" name="Algorithm2Selector"/>
+           </item>
+           <item row="6" column="0">
+            <widget class="QComboBox" name="AlgorithmSelector"/>
+           </item>
+           <item row="11" column="0">
+            <widget class="QLabel" name="NoteString">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot;
+               font-weight:600; color:#ff0004;&quot;&gt;Note:&lt;/span&gt;&lt;span style=&quot; color:#ff0004;&quot;&gt;
+               Custom data input will only allow &lt;br/&gt;up to 5 simulation runs and up to 10 &lt;br/&gt;processes
+               for each run.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+              </string>
+             </property>
+            </widget>
+           </item>
+           <item row="15" column="0">
+            <widget class="QGroupBox" name="TimeQuantumGroup">
+             <property name="title">
+              <string/>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QLabel" name="TimeQuantumString">
+                <property name="font">
+                 <font>
+                  <family>Open Sans</family>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Time Quantum:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="TimeQuantumSpinBox"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="AlgorithmTypeString">
              <property name="font">
               <font>
                <family>Open Sans</family>
@@ -150,7 +244,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Simulation Environment</string>
+              <string>Algorithm Type</string>
              </property>
             </widget>
            </item>
@@ -196,80 +290,6 @@
              </layout>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="AlgorithmTypeString">
-             <property name="font">
-              <font>
-               <family>Open Sans</family>
-               <pointsize>10</pointsize>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Algorithm Type</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QGroupBox" name="StaticDynamicGroup">
-             <property name="title">
-              <string/>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
-              <item>
-               <widget class="QRadioButton" name="StaticAlgorithmRadio">
-                <property name="text">
-                 <string>Static</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="DynamicAlgorithmRadio">
-                <property name="text">
-                 <string>Dynamic</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="AlgorithmString">
-             <property name="font">
-              <font>
-               <family>Open Sans</family>
-               <pointsize>10</pointsize>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Algorithm 1</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0">
-            <widget class="QComboBox" name="AlgorithmSelector"/>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="Algorithm2String">
-             <property name="font">
-              <font>
-               <family>Open Sans</family>
-               <pointsize>10</pointsize>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Algorithm 2</string>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="0">
-            <widget class="QComboBox" name="Algorithm2Selector"/>
-           </item>
            <item row="9" column="0">
             <widget class="QLabel" name="SimulationConfigString">
              <property name="font">
@@ -308,39 +328,57 @@
              </layout>
             </widget>
            </item>
-           <item row="11" column="0">
-            <widget class="QLabel" name="NoteString">
+           <item row="14" column="0">
+            <widget class="QLabel" name="ProcessPropString">
+             <property name="font">
+              <font>
+               <family>Open Sans</family>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot;
-               font-weight:600; color:#ff0004;&quot;&gt;Note:&lt;/span&gt;&lt;span style=&quot; color:#ff0004;&quot;&gt;
-               Custom data input will only allow &lt;br/&gt;up to 5 simulation runs and up to 10 &lt;br/&gt;processes
-               for each run.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
-              </string>
+              <string>Process Properties:</string>
              </property>
             </widget>
            </item>
-           <item row="12" column="0">
-            <widget class="QGroupBox" name="RunsGroup">
+           <item row="4" column="0">
+            <widget class="QGroupBox" name="StaticDynamicGroup">
              <property name="title">
               <string/>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout">
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
               <item>
-               <widget class="QLabel" name="RunsString">
-                <property name="font">
-                 <font>
-                  <family>Open Sans</family>
-                 </font>
-                </property>
+               <widget class="QRadioButton" name="StaticAlgorithmRadio">
                 <property name="text">
-                 <string>Number of Runs:</string>
+                 <string>Static</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="RunsSpinBox"/>
+               <widget class="QRadioButton" name="DynamicAlgorithmRadio">
+                <property name="text">
+                 <string>Dynamic</string>
+                </property>
+               </widget>
               </item>
              </layout>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="Algorithm2String">
+             <property name="font">
+              <font>
+               <family>Open Sans</family>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Algorithm 2</string>
+             </property>
             </widget>
            </item>
            <item row="13" column="0">
@@ -367,89 +405,91 @@
              </layout>
             </widget>
            </item>
-           <item row="14" column="0">
-            <widget class="QLabel" name="ProcessPropString">
+           <item row="20" column="0">
+            <widget class="QPushButton" name="StartSimulationButton">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <family>Open Sans</family>
-               <pointsize>8</pointsize>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 0, 0);
+               color: rgb(255, 255, 255);
+              </string>
+             </property>
+             <property name="text">
+              <string>Start Simulation</string>
+             </property>
+             <property name="autoDefault">
+              <bool>false</bool>
+             </property>
+             <property name="default">
+              <bool>false</bool>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="AlgorithmString">
+             <property name="font">
+              <font>
+               <family>Open Sans</family>
+               <pointsize>10</pointsize>
                <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
              <property name="text">
-              <string>Process Properties:</string>
+              <string>Algorithm 1</string>
              </property>
             </widget>
            </item>
-           <item row="15" column="0">
-            <widget class="QGroupBox" name="TimeQuantumGroup">
+           <item row="1" column="0">
+            <widget class="QLabel" name="SimulationEnvString">
+             <property name="font">
+              <font>
+               <family>Open Sans</family>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Simulation Environment</string>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="0">
+            <widget class="QGroupBox" name="RunsGroup">
              <property name="title">
               <string/>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <layout class="QHBoxLayout" name="horizontalLayout">
               <item>
-               <widget class="QLabel" name="TimeQuantumString">
+               <widget class="QLabel" name="RunsString">
                 <property name="font">
                  <font>
                   <family>Open Sans</family>
                  </font>
                 </property>
                 <property name="text">
-                 <string>Time Quantum:</string>
+                 <string>Number of Runs:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="TimeQuantumSpinBox"/>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="16" column="0">
-            <widget class="QGroupBox" name="ArrivalGroup">
-             <property name="title">
-              <string/>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <widget class="QLabel" name="ArrivalTimesString">
-                <property name="font">
-                 <font>
-                  <family>Open Sans</family>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Arrival Times:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPlainTextEdit" name="ArrivalTimesValueBox"/>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="17" column="0">
-            <widget class="QGroupBox" name="BurstGroup">
-             <property name="title">
-              <string/>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
-               <widget class="QLabel" name="BurstTimesString">
-                <property name="font">
-                 <font>
-                  <family>Open Sans</family>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Burst Times:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPlainTextEdit" name="BurstTimesValueBox"/>
+               <widget class="QSpinBox" name="RunsSpinBox"/>
               </item>
              </layout>
             </widget>
@@ -486,51 +526,28 @@
              </item>
             </layout>
            </item>
-           <item row="19" column="0">
-            <widget class="QPushButton" name="SaveResultsButton">
-             <property name="font">
-              <font>
-               <family>Open Sans</family>
-              </font>
+           <item row="17" column="0">
+            <widget class="QGroupBox" name="BurstGroup">
+             <property name="title">
+              <string/>
              </property>
-             <property name="text">
-              <string>Save Results</string>
-             </property>
-            </widget>
-           </item>
-           <item row="20" column="0">
-            <widget class="QPushButton" name="StartSimulationButton">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <family>Open Sans</family>
-               <pointsize>10</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 0, 0);
-               color: rgb(255, 255, 255);
-              </string>
-             </property>
-             <property name="text">
-              <string>Start Simulation</string>
-             </property>
-             <property name="autoDefault">
-              <bool>false</bool>
-             </property>
-             <property name="default">
-              <bool>false</bool>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
-             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QLabel" name="BurstTimesString">
+                <property name="font">
+                 <font>
+                  <family>Open Sans</family>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Burst Times:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPlainTextEdit" name="BurstTimesValueBox"/>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>

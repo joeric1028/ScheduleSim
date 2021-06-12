@@ -241,6 +241,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             return
 
         self.result = []
+        self.consoleplainTextEdit.clear()
 
         self.load = LoadBalancer(parent=self)
         self.load.moveToThread(self.worker)
@@ -507,35 +508,57 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
         result = self.result
         runsRR = []
         runsSJF = []
-        resultRR = []
-        resultSJF = []
+        waitingRR = []
+        waitingSJF = []
+        turnaroundRR = []
+        turnaroundSJF = []
 
         result.sort(key=lambda x: x[1])
 
         for i in range(len(result)):
             if result[i][0] == 0:
-                resultRR.append(result[i][2])
+                turnaroundRR.append(result[i][3])
+                waitingRR.append(result[i][2])
                 runsRR.append(result[i][1])
             if result[i][0] == 1:
-                resultSJF.append(result[i][2])
+                turnaroundSJF.append(result[i][3])
+                waitingSJF.append(result[i][2])
                 runsSJF.append(result[i][1])
 
         print("Emitted from Worker Thread")
         print("Showing Results on Main")
         print(f"From Received Result: {self.result}")
-        print(f"Round Robin: {runsRR}, {resultRR}")
-        print(f"Shortest Job First: {runsSJF}, {resultSJF}")
+        print(f"Round Robin: {runsRR}, {waitingRR}")
+        print(f"Shortest Job First: {runsSJF}, {waitingSJF}")
+
+        self.consoleplainTextEdit.appendPlainText(f"Results: {self.result}\n\n\n"
+                                                  f"Round Robin:\n\n"
+                                                  f"Run     Waiting Time        Turnaround Time")
+        for i in range(len(waitingRR)):
+            self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}     {waitingRR[i]}       {turnaroundRR[i]}")
+
+        self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First:\n\n"
+                                                  f"Run     Waiting Time        Turnaround Time")
+
+        for i in range(len(waitingRR)):
+            self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}     {waitingRR[i]}      {turnaroundRR[i]}")
 
         self.mplwidget.canvas.ax.cla()
         self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
                                            f"{self.Algorithm2Selector.currentText()} Simulation Test Result")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
-        self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
+        self.mplwidget.canvas.ax.set_ylabel("Average time")
 
-        self.mplwidget.canvas.ax.plot(runsRR, resultRR, label="Round Robin")
+        self.mplwidget.canvas.ax.plot(runsRR, waitingRR, label="Round Robin (waiting time)")
         self.mplwidget.canvas.ax.legend()
         self.mplwidget.canvas.draw()
-        self.mplwidget.canvas.ax.plot(runsSJF, resultSJF, label="Shortest Job First")
+        self.mplwidget.canvas.ax.plot(runsSJF, waitingSJF, label="Shortest Job First (waiting time)")
+        self.mplwidget.canvas.ax.legend()
+        self.mplwidget.canvas.draw()
+        self.mplwidget.canvas.ax.plot(runsRR, turnaroundRR, label="Round Robin (turnaround time)")
+        self.mplwidget.canvas.ax.legend()
+        self.mplwidget.canvas.draw()
+        self.mplwidget.canvas.ax.plot(runsSJF, turnaroundSJF, label="Shortest Job First (turnaround time)")
         self.mplwidget.canvas.ax.legend()
         self.mplwidget.canvas.draw()
 
@@ -594,6 +617,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
 
         if filename.exec():
             datafilename = filename.selectedFiles()[0]
+            directory = filename.directory()
             try:
                 createfile = open(datafilename, 'x')
                 createfile.close()
@@ -608,6 +632,38 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             finally:
                 message = QMessageBox(self)
                 message.setText(f"Successfully saved Image File at '{datafilename}'")
+                message.setWindowTitle(self.windowTitle())
+                message.setIcon(QMessageBox.Information)
+                message.setStandardButtons(QMessageBox.Ok)
+                message.exec()
+
+        filename = QFileDialog(self)
+        filename.setWindowTitle("Save Results text File")
+        filename.setFileMode(QFileDialog.ExistingFile)
+        filename.setViewMode(QFileDialog.List)
+        filename.setAcceptMode(QFileDialog.AcceptSave)
+        filename.setNameFilters([self.tr("text (*.txt)")])
+        filename.setDirectory(directory[0])
+
+        if filename.exec():
+            datafilename = filename.selectedFiles()[0]
+            directory = filename.directory()
+            try:
+                createfile = open(datafilename, 'x')
+                createfile.close()
+            except IOError:
+                print("File is already created!")
+
+            try:
+                editfile = open(datafilename, 'w')
+                editfile.write(self.consoleplainTextEdit.toPlainText())
+                editfile.close()
+            except IOError:
+                print(IOError)
+                print(f"File '{datafilename}' is currently in use or not accessible")
+            finally:
+                message = QMessageBox(self)
+                message.setText(f"Successfully saved text File at '{datafilename}'")
                 message.setWindowTitle(self.windowTitle())
                 message.setIcon(QMessageBox.Information)
                 message.setStandardButtons(QMessageBox.Ok)

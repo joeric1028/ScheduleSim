@@ -70,61 +70,60 @@ class LoadBalancer(QObject):
                 tempworker.calculate_waiting_time()
 
                 if temp_Algo_Mode == 0:
-                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingRR])
-                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingRR])
+                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingRR, tempworker.turnaroundRR])
+                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingRR,
+                                             tempworker.turnaroundRR])
                 elif temp_Algo_Mode == 1:
-                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingSJF])
-                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingSJF])
+                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingSJF,
+                                      tempworker.turnaroundSJF])
+                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingSJF,
+                                             tempworker.turnaroundSJF])
 
             elif otherargs[0][2] == 1:
                 tempworker = ThreadWorker([item[0], item[1], process_data, item[3]])
 
                 if temp_Algo_Mode == 0:
-                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingRR])
-                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingRR])
+                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingRR, tempworker.turnaroundRR])
+                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingRR,
+                                             tempworker.turnaroundRR])
                 elif temp_Algo_Mode == 1:
-                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingSJF])
-                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingSJF])
+                    result_queue.put([tempworker.algo, tempworker.runs, tempworker.waitingSJF,
+                                      tempworker.turnaroundSJF])
+                    self.update_result.emit([tempworker.algo, tempworker.runs, tempworker.waitingSJF,
+                                             tempworker.turnaroundSJF])
 
             if result_queue.qsize() == otherargs[1]:
                 print("Finished Simulation")
                 self.finished.emit()
 
     def _load_balance(self, process_data):
-        cpu1 = []
-        cpu2 = []
-        x = 0
-        i = 0
-        while i < len(process_data):
-            if x < self.cpu1_speed:
-                if x + process_data[i][2] < self.cpu1_speed:
-                    x += process_data[i][2]
-                    cpu1.append(process_data[i])
-                    process_data.pop(i)
-            else:
-                break
-            i += 1
-        y = 0
-        j = 0
-        while j < len(process_data):
-            if y < self.cpu2_speed:
-                if y + process_data[j][2] < self.cpu1_speed:
-                    y += process_data[j][2]
-                    cpu2.append(process_data[j])
-                    process_data.pop(j)
-            else:
-                break
-            j += 1
-        if self.cpu1_speed > self.cpu2_speed:
-            ratio = self.cpu1_speed / self.cpu2_speed
-            for k in range(len(cpu2)):
-                cpu2[k][2] *= ratio
+        cpu1_bt_total = 0
+        cpu2_bt_total = 0
+        cpu_1 = []
+        cpu_2 = []
+        extra = []
+        if self.cpu1_speed != 0 and self.cpu2_speed != 0:
+            multiplier = self.cpu1_speed / self.cpu2_speed
         else:
-            ratio = self.cpu2_speed / self.cpu1_speed
-            for m in range(len(cpu1)):
-                cpu1[m][2] *= ratio
+            multiplier = 1
 
-        return cpu1, cpu2, process_data
+        for i in range(len(process_data)):
+            if cpu1_bt_total < self.cpu1_speed:
+                cpu1_bt_total += process_data[i][2]
+                if self.cpu1_speed < self.cpu2_speed:
+                    process_data[i][2] *= multiplier
+                cpu_1.append(process_data[i])
+
+            elif cpu2_bt_total < self.cpu2_speed:
+                cpu2_bt_total += process_data[i][2]
+                if self.cpu2_speed < self.cpu1_speed:
+                    process_data[i][2] *= multiplier
+                cpu_2.append(process_data[i])
+
+            else:
+                extra.append(process_data[i])
+
+        return cpu_1, cpu_2, extra
 
     # This function will build a queue and
     def start_thread_process(self, queue_pile_temp):

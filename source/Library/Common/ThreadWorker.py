@@ -12,6 +12,8 @@ class ThreadWorker:
         self.completedProcessData = []
         self.waitingRR = None
         self.waitingSJF = None
+        self.turnaroundRR = None
+        self.turnaroundSJF = None
         self.worker = 0
         self.results = 0
 
@@ -23,11 +25,13 @@ class ThreadWorker:
             RR = RoundRobin()
             RR.createprocess(self.processdata, self.quantum)
             self.waitingRR = RR.getavgwaittime()
+            self.turnaroundRR = RR.getavgturnaroundtime()
             self.completedProcessData = RR.getcompletedprocessdata()
         elif self.algo == 1:
             SJF = ShortestJobFirst()
             SJF.createprocess(self.processdata)
             self.waitingSJF = SJF.getavgwaittime()
+            self.turnaroundSJF = SJF.getavgturnaroundtime()
             self.completedProcessData = SJF.getcompletedprocessdata()
 
     def calculate_waiting_time(self):
@@ -35,9 +39,11 @@ class ThreadWorker:
             RR = RoundRobin()
             RR.createprocess_calculate_waiting_time(self.processdata)
             self.waitingRR = RR.getavgwaittime()
+            self.turnaroundRR = RR.getavgturnaroundtime()
             self.completedProcessData = RR.getcompletedprocessdata()
         elif self.algo == 1:
             SJF = ShortestJobFirst()
             SJF.createprocess_calculate_waiting_time(self.processdata)
             self.waitingSJF = SJF.getavgwaittime()
+            self.turnaroundSJF = SJF.getavgturnaroundtime()
             self.completedProcessData = SJF.getcompletedprocessdata()

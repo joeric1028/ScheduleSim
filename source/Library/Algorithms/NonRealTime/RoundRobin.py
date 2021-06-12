@@ -24,6 +24,7 @@ class RoundRobin:
     def createprocess_calculate_waiting_time(self, processdata):
         self.__start = time.time()
         self.__calculatewaitingtime(processdata)
+        self.__calculateturnaroundtime(processdata)
 
     def __executeprocesses(self, processdata, quantum):  # this will execute the round robin algorithm
         startTime = []
@@ -173,8 +174,14 @@ class RoundRobin:
         waitingTimeList = []
         processdata.sort(key=lambda y: y[0])  # this will sort the processes by their IDs
         print("Round Robin Algorithm Simulation Results\n\n"
-              "Process ID  Arrival Time  Rem Burst Time   Completed  Original Burst Time  Completion Time  Turnaround "
-              "Time  Waiting Time")
+              "Process ID   "
+              "Arrival Time     "
+              "Rem Burst Time    "
+              "Completed    "
+              "Original Burst Time     "
+              "Completion Time   "
+              "Turnaround Time      "
+              "Waiting Time")
         for i in range(len(processdata)):
             for j in range(len(processdata[i])):
                 print(processdata[i][j], end="				")
@@ -198,6 +205,9 @@ class RoundRobin:
 
     def getavgwaittime(self):
         return self.__averageWaitingTime
+
+    def getavgturnaroundtime(self):
+        return self.__averageTurnAroundTime
 
     def getcompletedprocessdata(self):
         return self.__completedProcessData
