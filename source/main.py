@@ -509,58 +509,128 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
         runsRR = []
         runsSJF = []
         waitingRR = []
+        waitingRR_cpu2 = []
         waitingSJF = []
+        waitingSJF_cpu2 = []
         turnaroundRR = []
+        turnaroundRR_cpu2 = []
         turnaroundSJF = []
+        turnaroundSJF_cpu2 = []
 
-        result.sort(key=lambda x: x[1])
+        result.sort(key=lambda x: x[2])
 
         for i in range(len(result)):
             if result[i][0] == 0:
-                turnaroundRR.append(result[i][3])
-                waitingRR.append(result[i][2])
-                runsRR.append(result[i][1])
+                turnaroundRR.append(result[i][4])
+                waitingRR.append(result[i][3])
+                runsRR.append(result[i][2])
+                if result[i][1] == 1:
+                    turnaroundRR_cpu2.append(result[i][6])
+                    waitingRR_cpu2.append(result[i][5])
             if result[i][0] == 1:
-                turnaroundSJF.append(result[i][3])
-                waitingSJF.append(result[i][2])
-                runsSJF.append(result[i][1])
+                turnaroundSJF.append(result[i][4])
+                waitingSJF.append(result[i][3])
+                runsSJF.append(result[i][2])
+                if result[i][1] == 1:
+                    turnaroundSJF_cpu2.append(result[i][6])
+                    waitingSJF_cpu2.append(result[i][5])
 
         print("Emitted from Worker Thread")
         print("Showing Results on Main")
         print(f"From Received Result: {self.result}")
-        print(f"Round Robin: {runsRR}, {waitingRR}")
-        print(f"Shortest Job First: {runsSJF}, {waitingSJF}")
-
-        self.consoleplainTextEdit.appendPlainText(f"Results: {self.result}\n\n\n"
-                                                  f"Round Robin:\n\n"
-                                                  f"Run     Waiting Time        Turnaround Time")
-        for i in range(len(waitingRR)):
-            self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}     {waitingRR[i]}       {turnaroundRR[i]}")
-
-        self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First:\n\n"
-                                                  f"Run     Waiting Time        Turnaround Time")
-
-        for i in range(len(waitingRR)):
-            self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}     {waitingRR[i]}      {turnaroundRR[i]}")
-
+        self.consoleplainTextEdit.appendPlainText(f"Results: {self.result}\n\n")
         self.mplwidget.canvas.ax.cla()
         self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
                                            f"{self.Algorithm2Selector.currentText()} Simulation Test Result")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
         self.mplwidget.canvas.ax.set_ylabel("Average time")
+        if self.CpucheckBox.isChecked():
+            print(f"Round Robin: {runsRR}, {waitingRR}")
+            print(f"Shortest Job First: {runsSJF}, {waitingSJF}")
 
-        self.mplwidget.canvas.ax.plot(runsRR, waitingRR, label="Round Robin (waiting time)")
-        self.mplwidget.canvas.ax.legend()
-        self.mplwidget.canvas.draw()
-        self.mplwidget.canvas.ax.plot(runsSJF, waitingSJF, label="Shortest Job First (waiting time)")
-        self.mplwidget.canvas.ax.legend()
-        self.mplwidget.canvas.draw()
-        self.mplwidget.canvas.ax.plot(runsRR, turnaroundRR, label="Round Robin (turnaround time)")
-        self.mplwidget.canvas.ax.legend()
-        self.mplwidget.canvas.draw()
-        self.mplwidget.canvas.ax.plot(runsSJF, turnaroundSJF, label="Shortest Job First (turnaround time)")
-        self.mplwidget.canvas.ax.legend()
-        self.mplwidget.canvas.draw()
+            self.consoleplainTextEdit.appendPlainText(f"Round Robin:\n\n"
+                                                      f"Run     Waiting Time        Turnaround Time")
+            for i in range(len(runsRR)):
+                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}             {waitingRR[i]}       "
+                                                          f"           {turnaroundRR[i]}")
+
+            self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First:\n\n"
+                                                      f"Run     Waiting Time        Turnaround Time")
+
+            for i in range(len(runsSJF)):
+                self.consoleplainTextEdit.appendPlainText(f"{runsSJF[i]}            {waitingSJF[i]}      "
+                                                          f"           {turnaroundSJF[i]}")
+
+            self.mplwidget.canvas.ax.plot(runsRR, waitingRR, label="Round Robin (waiting time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
+            self.mplwidget.canvas.ax.plot(runsSJF, waitingSJF, label="Shortest Job First (waiting time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
+            self.mplwidget.canvas.ax.plot(runsRR, turnaroundRR, label="Round Robin (turnaround time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
+            self.mplwidget.canvas.ax.plot(runsSJF, turnaroundSJF, label="Shortest Job First (turnaround time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
+        else:
+            print(f"Round Robin CPU 1: {runsRR}, {waitingRR}")
+            print(f"Round Robin CPU 2: {runsRR}, {waitingRR_cpu2}")
+            print(f"Shortest Job First CPU 1: {runsSJF}, {waitingSJF}")
+            print(f"Shortest Job First CPU 2: {runsSJF}, {waitingSJF_cpu2}")
+
+            self.consoleplainTextEdit.appendPlainText(f"Round Robin CPU 1:\n\n"
+                                                      f"Run     Waiting Time        Turnaround Time")
+            for i in range(len(runsRR)):
+                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}             {waitingRR[i]}       "
+                                                          f"           {turnaroundRR[i]}")
+
+            self.consoleplainTextEdit.appendPlainText(f"\nRound Robin CPU 2:\n\n"
+                                                      f"Run     Waiting Time        Turnaround Time")
+            for i in range(len(runsRR)):
+                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}             {waitingRR_cpu2[i]}       "
+                                                          f"           {turnaroundRR_cpu2[i]}")
+
+            self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First CPU 1:\n\n"
+                                                      f"Run     Waiting Time        Turnaround Time")
+
+            for i in range(len(runsSJF)):
+                self.consoleplainTextEdit.appendPlainText(f"{runsSJF[i]}             {waitingSJF[i]}       "
+                                                          f"           {turnaroundSJF[i]}")
+
+            self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First CPU 2:\n\n"
+                                                      f"Run     Waiting Time        Turnaround Time")
+
+            for i in range(len(runsSJF)):
+                self.consoleplainTextEdit.appendPlainText(
+                    f"{runsSJF[i]}             {waitingSJF_cpu2[i]}       "
+                    f"           {turnaroundSJF_cpu2[i]}")
+
+            self.mplwidget.canvas.ax.plot(runsRR, waitingRR, label="Round Robin CPU 1 (waiting time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
+            self.mplwidget.canvas.ax.plot(runsRR, waitingRR_cpu2, label="Round Robin CPU 2 (waiting time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
+            self.mplwidget.canvas.ax.plot(runsSJF, waitingSJF, label="Shortest Job First CPU 1 (waiting time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
+            self.mplwidget.canvas.ax.plot(runsSJF, waitingSJF_cpu2, label="Shortest Job First CPU 2 (waiting time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
+            self.mplwidget.canvas.ax.plot(runsRR, turnaroundRR, label="Round Robin CPU 1 (turnaround time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
+            self.mplwidget.canvas.ax.plot(runsRR, turnaroundRR_cpu2, label="Round Robin CPU 2 (turnaround time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
+            self.mplwidget.canvas.ax.plot(runsSJF, turnaroundSJF, label="Shortest Job First CPU 2(turnaround time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
+            self.mplwidget.canvas.ax.plot(runsSJF, turnaroundSJF_cpu2,
+                                          label="Shortest Job First CPU 2 (turnaround time)")
+            self.mplwidget.canvas.ax.legend()
+            self.mplwidget.canvas.draw()
 
         self.isRunning = False
         self.result = []

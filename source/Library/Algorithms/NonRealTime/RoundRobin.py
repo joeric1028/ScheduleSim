@@ -9,7 +9,9 @@ import time
 class RoundRobin:
     def __init__(self):
         self.__averageWaitingTime = 0
+        self.__totalWaitingTime = 0
         self.__averageTurnAroundTime = 0
+        self.__totalTurnAroundTime = 0
         self.__totalProc = 0
         self.__waitList = []
         self.__start = 0
@@ -20,6 +22,9 @@ class RoundRobin:
         # this function will create and gather the data of each of the processes
         self.__start = time.time()
         self.__executeprocesses(processdata, quantum)
+        self.__calculateturnaroundtime(self.__completedProcessData)
+        self.__calculatewaitingtime(self.__completedProcessData)
+        self.printdata(self.__completedProcessData)
 
     def createprocess_calculate_waiting_time(self, processdata):
         self.__start = time.time()
@@ -135,10 +140,7 @@ class RoundRobin:
                     processdata[jk][3] = 1
                     processdata[jk].append(etime)
 
-        self.__execProcess = execProcess
-        self.__calculateturnaroundtime(processdata)
-        self.__calculatewaitingtime(processdata)
-        self.printdata(processdata)
+        self.__completedProcessData = processdata
 
     def __calculateturnaroundtime(self, processdata):
         totalTurnAroundTime = 0
@@ -151,9 +153,11 @@ class RoundRobin:
             processdata[i].append(turnAroundTime)
         if len(processdata) == 0:
             self.__averageTurnAroundTime = 0
+            self.__totalTurnAroundTime = 0
             return
         self.__averageTurnAroundTime = totalTurnAroundTime / len(processdata)
         # avgTurnAroundTime = totalTurnAroundTime / numOfProcesses
+        self.__totalTurnAroundTime = totalTurnAroundTime
 
     def __calculatewaitingtime(self, processdata):
         totalWaitingTime = 0
@@ -166,9 +170,11 @@ class RoundRobin:
             processdata[i].append(waitingTime)
         if len(processdata) == 0:
             self.__averageWaitingTime = 0
+            self.__totalWaitingTime = 0
             return
         self.__averageWaitingTime = totalWaitingTime / len(processdata)
         # avgWaitingTime = totalWaitingTime / numOfProcesses
+        self.__totalWaitingTime = totalWaitingTime
 
     def printdata(self, processdata):
         waitingTimeList = []
@@ -206,8 +212,14 @@ class RoundRobin:
     def getavgwaittime(self):
         return self.__averageWaitingTime
 
+    def gettotalwaitime(self):
+        return self.__totalWaitingTime
+
     def getavgturnaroundtime(self):
         return self.__averageTurnAroundTime
+
+    def gettotalturnaroundtime(self):
+        return self.__totalTurnAroundTime
 
     def getcompletedprocessdata(self):
         return self.__completedProcessData

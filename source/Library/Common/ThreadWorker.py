@@ -10,10 +10,8 @@ class ThreadWorker:
         self.quantum = process[3]
         self.mode = mode
         self.completedProcessData = []
-        self.waitingRR = None
-        self.waitingSJF = None
-        self.turnaroundRR = None
-        self.turnaroundSJF = None
+        self.waiting = None
+        self.turnaround = None
         self.worker = 0
         self.results = 0
 
@@ -24,26 +22,26 @@ class ThreadWorker:
         if self.algo == 0:
             RR = RoundRobin()
             RR.createprocess(self.processdata, self.quantum)
-            self.waitingRR = RR.getavgwaittime()
-            self.turnaroundRR = RR.getavgturnaroundtime()
+            self.waiting = RR.gettotalwaitime()
+            self.turnaround = RR.gettotalturnaroundtime()
             self.completedProcessData = RR.getcompletedprocessdata()
         elif self.algo == 1:
             SJF = ShortestJobFirst()
             SJF.createprocess(self.processdata)
-            self.waitingSJF = SJF.getavgwaittime()
-            self.turnaroundSJF = SJF.getavgturnaroundtime()
+            self.waiting = SJF.gettotalwaittime()
+            self.turnaround = SJF.gettotalturnaroundtime()
             self.completedProcessData = SJF.getcompletedprocessdata()
 
     def calculate_waiting_time(self):
         if self.algo == 0:
             RR = RoundRobin()
             RR.createprocess_calculate_waiting_time(self.processdata)
-            self.waitingRR = RR.getavgwaittime()
-            self.turnaroundRR = RR.getavgturnaroundtime()
+            self.waiting = RR.gettotalwaitime()
+            self.turnaround = RR.gettotalturnaroundtime()
             self.completedProcessData = RR.getcompletedprocessdata()
         elif self.algo == 1:
             SJF = ShortestJobFirst()
             SJF.createprocess_calculate_waiting_time(self.processdata)
-            self.waitingSJF = SJF.getavgwaittime()
-            self.turnaroundSJF = SJF.getavgturnaroundtime()
+            self.waiting = SJF.gettotalwaittime()
+            self.turnaround = SJF.gettotalturnaroundtime()
             self.completedProcessData = SJF.getcompletedprocessdata()
