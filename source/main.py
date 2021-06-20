@@ -51,6 +51,8 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
         self.RunsSpinBox.setMaximum(5)
         self.ProcessesSpinBox.setMaximum(10)
         self.TimeQuantumSpinBox.setMaximum(10)
+        self.arrival_error = False
+        self.burst_error = False
         self.data_verification()
 
         self.mplwidget.canvas.ax.set_title("Simulation Test (Example)")
@@ -271,11 +273,26 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
                   self.BurstTimesValueBox.toPlainText() != "")):
             self.StartSimulationButton.setEnabled(True)
             self.StartSimulationButton.setStyleSheet("background-color: rgb(255, 0, 0);color: rgb(255, 255, 255);")
+            self.ArrivalTimesString.setStyleSheet("")
+            self.BurstTimesString.setStyleSheet("")
         else:
             self.StartSimulationButton.setDisabled(True)
             self.StartSimulationButton.setStyleSheet("")
+            if self.ArrivalTimesValueBox.toPlainText() != "":
+                if self.arrival_error:
+                    self.ArrivalTimesString.setStyleSheet("color: rgb(255, 0, 0);")
+                else:
+                    self.ArrivalTimesString.setStyleSheet("")
+            if self.BurstTimesValueBox.toPlainText() != "":
+                if self.burst_error:
+                    self.BurstTimesString.setStyleSheet("color: rgb(255, 0, 0);")
+                else:
+                    self.BurstTimesString.setStyleSheet("")
 
     def arrival_burst_time_data_verification(self):
+        checkok = True
+        self.arrival_error = False
+        self.burst_error = False
         if self.RandomizedDataRadio.isChecked():
             return True
 
@@ -303,14 +320,24 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
 
             for j in range(len(arrival_time_string[i])):
                 if len(arrival_time_string[i]) != self.ProcessesSpinBox.value() or arrival_time_string[i][j] == "" \
-                        or not arrival_time_string[i][j].isdigit():
-                    return False
+                        or not arrival_time_string[i][j].isdigit() and not checkok:
+                    self.arrival_error = True
+                    checkok = False
+                    break
 
             for j in range(len(burst_time_string[i])):
                 if len(burst_time_string[i]) != self.ProcessesSpinBox.value() or burst_time_string[i][j] == "" \
                         or not burst_time_string[i][j].isdigit() \
-                        or (not self.CpucheckBox.isChecked() and int(burst_time_string[i][j]) > lowest_cpu_speed):
-                    return False
+                        or (not self.CpucheckBox.isChecked() and int(burst_time_string[i][j]) > lowest_cpu_speed)\
+                        and not checkok:
+                    self.burst_error = True
+                    checkok = False
+                    break
+
+        if not checkok:
+            return False
+        self.arrival_error = False
+        self.burst_error = False
         return True
 
     def load_prop_data(self):
@@ -447,7 +474,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
         filename.setAcceptMode(QFileDialog.AcceptSave)
         filename.setNameFilters([self.tr("Properties Save File (*.sav)"),
                                  self.tr("Any Files (*)")])
-        directory = QStandardPaths.standardLocations(QStandardPaths.DocumentsLocation)
+        directory = QStandardPaths.standardLocations(QStandardPaths.DownloadLocation)
         filename.setDirectory(directory[0])
 
         if filename.exec():
