@@ -152,9 +152,9 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
                         temp_dataSJF.extend([process_id, arrival_time, burst_time, 0])
                         if self.ArrivalTimesValueBox.toPlainText() != "":
                             if j == 0:
-                                self.ArrivalTimesValueBox.setPlainText(self.ArrivalTimesValueBox.toPlainText() + ";"
+                                self.ArrivalTimesValueBox.setPlainText(self.ArrivalTimesValueBox.toPlainText() + "\n\n"
                                                                        + str(arrival_time))
-                                self.BurstTimesValueBox.setPlainText(self.BurstTimesValueBox.toPlainText() + ";"
+                                self.BurstTimesValueBox.setPlainText(self.BurstTimesValueBox.toPlainText() + "\n\n"
                                                                      + str(burst_time))
                             else:
                                 self.ArrivalTimesValueBox.setPlainText(self.ArrivalTimesValueBox.toPlainText() + ","
@@ -175,10 +175,10 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
                     pass
         elif self.CustomDataRadio.isChecked():
             arrival_time_string = self.ArrivalTimesValueBox.toPlainText()
-            arrival_time_string = arrival_time_string.split(";")
+            arrival_time_string = arrival_time_string.split("\n\n")
 
             burst_time_string = self.BurstTimesValueBox.toPlainText()
-            burst_time_string = burst_time_string.split(";")
+            burst_time_string = burst_time_string.split("\n\n")
 
             for i in range(self.RunsSpinBox.value()):
                 temp_arrival_time_string = arrival_time_string[i].split(",")
@@ -297,12 +297,22 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             return True
 
         arrival_time_string = self.ArrivalTimesValueBox.toPlainText()
-        arrival_time_string = arrival_time_string.split(";")
+        arrival_time_string = arrival_time_string.split("\n\n")
 
         burst_time_string = self.BurstTimesValueBox.toPlainText()
-        burst_time_string = burst_time_string.split(";")
+        burst_time_string = burst_time_string.split("\n\n")
 
         if len(arrival_time_string) != self.RunsSpinBox.value() or len(burst_time_string) != self.RunsSpinBox.value():
+            if len(arrival_time_string) != self.RunsSpinBox.value():
+                if len(arrival_time_string):
+                    self.arrival_error = True
+                else:
+                    self.arrival_error = False
+            if len(burst_time_string) != self.RunsSpinBox.value():
+                if len(burst_time_string):
+                    self.burst_error = True
+                else:
+                    self.burst_error = False
             return False
 
         lowest_cpu_speed = None
