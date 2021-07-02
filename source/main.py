@@ -57,7 +57,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
 
         self.mplwidget.canvas.ax.set_title("Simulation Test (Example)")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
-        self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
+        self.mplwidget.canvas.ax.set_ylabel("Average waiting times (ms)")
         self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40], label=" Sample Test Plot")
         self.mplwidget.canvas.ax.legend()
 
@@ -207,7 +207,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
         self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
                                            f"{self.Algorithm2Selector.currentText()} Currently Simulating")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
-        self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
+        self.mplwidget.canvas.ax.set_ylabel("Average waiting times (ms)")
         self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10)],
@@ -233,7 +233,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
                                                f"{self.Algorithm2Selector.currentText()} Stopped Simulation Test")
             self.mplwidget.canvas.ax.set_xlabel("Runs")
-            self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
+            self.mplwidget.canvas.ax.set_ylabel("Average waiting times (ms)")
             self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [random.randint(1, 10),
                                                             random.randint(1, 10), random.randint(1, 10),
                                                             random.randint(1, 10), random.randint(1, 10)],
@@ -580,7 +580,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
         self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
                                            f"{self.Algorithm2Selector.currentText()} Simulation Test Result")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
-        self.mplwidget.canvas.ax.set_ylabel("Average time")
+        self.mplwidget.canvas.ax.set_ylabel("Average time (ms)")
         if self.CpucheckBox.isChecked():
             print(f"Round Robin: {runsRR}, {waitingRR}")
             print(f"Shortest Job First: {runsSJF}, {waitingSJF}")
@@ -588,15 +588,15 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             self.consoleplainTextEdit.appendPlainText(f"Round Robin:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
             for i in range(len(runsRR)):
-                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}             {waitingRR[i]}       "
-                                                          f"           {turnaroundRR[i]}")
+                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]} ms          {waitingRR[i]} ms    "
+                                                          f"           {turnaroundRR[i]} ms")
 
             self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
 
             for i in range(len(runsSJF)):
-                self.consoleplainTextEdit.appendPlainText(f"{runsSJF[i]}            {waitingSJF[i]}      "
-                                                          f"           {turnaroundSJF[i]}")
+                self.consoleplainTextEdit.appendPlainText(f"{runsSJF[i]} ms         {waitingSJF[i]} ms   "
+                                                          f"           {turnaroundSJF[i]} ms")
 
             self.mplwidget.canvas.ax.plot(runsRR, waitingRR, label="Round Robin (waiting time)")
             self.mplwidget.canvas.ax.legend()
@@ -619,29 +619,29 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             self.consoleplainTextEdit.appendPlainText(f"Round Robin CPU 1:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
             for i in range(len(runsRR)):
-                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}             {waitingRR[i]}       "
-                                                          f"           {turnaroundRR[i]}")
+                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]} ms          {waitingRR[i]} ms    "
+                                                          f"           {turnaroundRR[i]} ms")
 
             self.consoleplainTextEdit.appendPlainText(f"\nRound Robin CPU 2:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
             for i in range(len(runsRR)):
-                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}             {waitingRR_cpu2[i]}       "
-                                                          f"           {turnaroundRR_cpu2[i]}")
+                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]} ms          {waitingRR_cpu2[i]} ms    "
+                                                          f"           {turnaroundRR_cpu2[i]} ms")
 
             self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First CPU 1:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
 
             for i in range(len(runsSJF)):
-                self.consoleplainTextEdit.appendPlainText(f"{runsSJF[i]}             {waitingSJF[i]}       "
-                                                          f"           {turnaroundSJF[i]}")
+                self.consoleplainTextEdit.appendPlainText(f"{runsSJF[i]} ms          {waitingSJF[i]} ms    "
+                                                          f"           {turnaroundSJF[i]} ms")
 
             self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First CPU 2:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
 
             for i in range(len(runsSJF)):
                 self.consoleplainTextEdit.appendPlainText(
-                    f"{runsSJF[i]}             {waitingSJF_cpu2[i]}       "
-                    f"           {turnaroundSJF_cpu2[i]}")
+                    f"{runsSJF[i]} ms          {waitingSJF_cpu2[i]} ms    "
+                    f"           {turnaroundSJF_cpu2[i]} ms")
 
             self.mplwidget.canvas.ax.plot(runsRR, waitingRR, label="Round Robin CPU 1 (waiting time)")
             self.mplwidget.canvas.ax.legend()
