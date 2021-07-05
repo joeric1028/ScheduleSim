@@ -330,18 +330,19 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
 
             for j in range(len(arrival_time_string[i])):
                 if len(arrival_time_string[i]) != self.ProcessesSpinBox.value() or arrival_time_string[i][j] == "" \
-                        or not arrival_time_string[i][j].isdigit() and not checkok:
+                        or not arrival_time_string[i][j].isdigit():
                     self.arrival_error = True
-                    checkok = False
+                    if checkok:
+                        checkok = False
                     break
 
             for j in range(len(burst_time_string[i])):
                 if len(burst_time_string[i]) != self.ProcessesSpinBox.value() or burst_time_string[i][j] == "" \
                         or not burst_time_string[i][j].isdigit() \
-                        or (not self.CpucheckBox.isChecked() and int(burst_time_string[i][j]) > lowest_cpu_speed)\
-                        and not checkok:
+                        or (not self.CpucheckBox.isChecked() and int(burst_time_string[i][j]) > lowest_cpu_speed):
                     self.burst_error = True
-                    checkok = False
+                    if checkok:
+                        checkok = False
                     break
 
         if not checkok:
