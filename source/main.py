@@ -57,7 +57,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
 
         self.mplwidget.canvas.ax.set_title("Simulation Test (Example)")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
-        self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
+        self.mplwidget.canvas.ax.set_ylabel("Average waiting times (ms)")
         self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40], label=" Sample Test Plot")
         self.mplwidget.canvas.ax.legend()
 
@@ -207,7 +207,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
         self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
                                            f"{self.Algorithm2Selector.currentText()} Currently Simulating")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
-        self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
+        self.mplwidget.canvas.ax.set_ylabel("Average waiting times (ms)")
         self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10),
                                                         random.randint(1, 10), random.randint(1, 10)],
@@ -233,7 +233,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
                                                f"{self.Algorithm2Selector.currentText()} Stopped Simulation Test")
             self.mplwidget.canvas.ax.set_xlabel("Runs")
-            self.mplwidget.canvas.ax.set_ylabel("Average waiting times")
+            self.mplwidget.canvas.ax.set_ylabel("Average waiting times (ms)")
             self.mplwidget.canvas.ax.plot([0, 1, 2, 3, 4], [random.randint(1, 10),
                                                             random.randint(1, 10), random.randint(1, 10),
                                                             random.randint(1, 10), random.randint(1, 10)],
@@ -296,6 +296,15 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
         if self.RandomizedDataRadio.isChecked():
             return True
 
+        lowest_cpu_speed = None
+
+        if self.Cpu1SpinBox.value() < self.Cpu2SpinBox.value():
+            lowest_cpu_speed = self.Cpu1SpinBox.value()
+        elif self.Cpu1SpinBox.value() > self.Cpu2SpinBox.value():
+            lowest_cpu_speed = self.Cpu2SpinBox.value()
+        elif self.Cpu1SpinBox.value() == self.Cpu2SpinBox.value():
+            lowest_cpu_speed = self.Cpu1SpinBox.value()
+
         arrival_time_string = self.ArrivalTimesValueBox.toPlainText()
         arrival_time_string = arrival_time_string.split("\n\n")
 
@@ -308,21 +317,35 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
                     self.arrival_error = True
                 else:
                     self.arrival_error = False
+            else:
+                for i in range(self.RunsSpinBox.value()):
+                    arrival_time_string[i] = arrival_time_string[i].split(",")
+
+                    for j in range(len(arrival_time_string[i])):
+                        if len(arrival_time_string[i]) != self.ProcessesSpinBox.value() or arrival_time_string[i][
+                            j] == "" \
+                                or not arrival_time_string[i][j].isdigit():
+                            self.arrival_error = True
+                            break
+
             if len(burst_time_string) != self.RunsSpinBox.value():
                 if len(burst_time_string):
                     self.burst_error = True
                 else:
                     self.burst_error = False
+            else:
+                for i in range(self.RunsSpinBox.value()):
+                    burst_time_string[i] = burst_time_string[i].split(",")
+
+                    for j in range(len(burst_time_string[i])):
+                        if len(burst_time_string[i]) != self.ProcessesSpinBox.value() or burst_time_string[i][
+                            j] == "" \
+                                or not burst_time_string[i][j].isdigit() \
+                                or (not self.CpucheckBox.isChecked() and int(burst_time_string[i][j]) >
+                                    lowest_cpu_speed):
+                            self.burst_error = True
+                            break
             return False
-
-        lowest_cpu_speed = None
-
-        if self.Cpu1SpinBox.value() < self.Cpu2SpinBox.value():
-            lowest_cpu_speed = self.Cpu1SpinBox.value()
-        elif self.Cpu1SpinBox.value() > self.Cpu2SpinBox.value():
-            lowest_cpu_speed = self.Cpu2SpinBox.value()
-        elif self.Cpu1SpinBox.value() == self.Cpu2SpinBox.value():
-            lowest_cpu_speed = self.Cpu1SpinBox.value()
 
         for i in range(self.RunsSpinBox.value()):
             arrival_time_string[i] = arrival_time_string[i].split(",")
@@ -330,7 +353,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
 
             for j in range(len(arrival_time_string[i])):
                 if len(arrival_time_string[i]) != self.ProcessesSpinBox.value() or arrival_time_string[i][j] == "" \
-                        or not arrival_time_string[i][j].isdigit() and not checkok:
+                        or not arrival_time_string[i][j].isdigit():
                     self.arrival_error = True
                     checkok = False
                     break
@@ -338,16 +361,13 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             for j in range(len(burst_time_string[i])):
                 if len(burst_time_string[i]) != self.ProcessesSpinBox.value() or burst_time_string[i][j] == "" \
                         or not burst_time_string[i][j].isdigit() \
-                        or (not self.CpucheckBox.isChecked() and int(burst_time_string[i][j]) > lowest_cpu_speed)\
-                        and not checkok:
+                        or (not self.CpucheckBox.isChecked() and int(burst_time_string[i][j]) > lowest_cpu_speed):
                     self.burst_error = True
                     checkok = False
                     break
 
         if not checkok:
             return False
-        self.arrival_error = False
-        self.burst_error = False
         return True
 
     def load_prop_data(self):
@@ -575,28 +595,47 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
         print("Emitted from Worker Thread")
         print("Showing Results on Main")
         print(f"From Received Result: {self.result}")
-        self.consoleplainTextEdit.appendPlainText(f"Results: {self.result}\n\n")
+        self.consoleplainTextEdit.appendPlainText("Results:\n\n")
         self.mplwidget.canvas.ax.cla()
         self.mplwidget.canvas.ax.set_title(f"{self.AlgorithmSelector.currentText()} vs "
                                            f"{self.Algorithm2Selector.currentText()} Simulation Test Result")
         self.mplwidget.canvas.ax.set_xlabel("Runs")
-        self.mplwidget.canvas.ax.set_ylabel("Average time")
+        self.mplwidget.canvas.ax.set_ylabel("Average time (ms)")
         if self.CpucheckBox.isChecked():
             print(f"Round Robin: {runsRR}, {waitingRR}")
             print(f"Shortest Job First: {runsSJF}, {waitingSJF}")
 
             self.consoleplainTextEdit.appendPlainText(f"Round Robin:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
+            temp_truns = 0
+            temp_tat = 0
+            temp_wt = 0
             for i in range(len(runsRR)):
-                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}             {waitingRR[i]}       "
-                                                          f"           {turnaroundRR[i]}")
+                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}              {waitingRR[i]} ms    "
+                                                          f"           {turnaroundRR[i]} ms")
+                temp_truns += runsRR[i]
+                temp_wt += waitingRR[i]
+                temp_tat += turnaroundRR[i]
+            temp_tat = temp_tat / temp_truns
+            temp_wt = temp_wt / temp_truns
+            self.consoleplainTextEdit.appendPlainText(f"\nAverage Turnaround Time: {temp_tat} ms\n"
+                                                      f"Average Waiting Time: {temp_wt} ms\n")
 
             self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
-
+            temp_truns = 0
+            temp_tat = 0
+            temp_wt = 0
             for i in range(len(runsSJF)):
-                self.consoleplainTextEdit.appendPlainText(f"{runsSJF[i]}            {waitingSJF[i]}      "
-                                                          f"           {turnaroundSJF[i]}")
+                self.consoleplainTextEdit.appendPlainText(f"{runsSJF[i]}             {waitingSJF[i]} ms   "
+                                                          f"             {turnaroundSJF[i]} ms")
+                temp_truns += runsSJF[i]
+                temp_wt += waitingSJF[i]
+                temp_tat += turnaroundSJF[i]
+            temp_tat = temp_tat / temp_truns
+            temp_wt = temp_wt / temp_truns
+            self.consoleplainTextEdit.appendPlainText(f"\nAverage Turnaround Time: {temp_tat} ms\n"
+                                                      f"Average Waiting Time: {temp_wt} ms\n")
 
             self.mplwidget.canvas.ax.plot(runsRR, waitingRR, label="Round Robin (waiting time)")
             self.mplwidget.canvas.ax.legend()
@@ -618,30 +657,68 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
 
             self.consoleplainTextEdit.appendPlainText(f"Round Robin CPU 1:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
+            temp_truns = 0
+            temp_tat = 0
+            temp_wt = 0
             for i in range(len(runsRR)):
-                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}             {waitingRR[i]}       "
-                                                          f"           {turnaroundRR[i]}")
+                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}             {waitingRR[i]} ms    "
+                                                          f"           {turnaroundRR[i]} ms")
+                temp_truns += runsRR[i]
+                temp_wt += waitingRR[i]
+                temp_tat += turnaroundRR[i]
+            temp_tat = temp_tat / temp_truns
+            temp_wt = temp_wt / temp_truns
+            self.consoleplainTextEdit.appendPlainText(f"\nAverage Turnaround Time: {temp_tat} ms\n"
+                                                      f"Average Waiting Time: {temp_wt} ms\n")
 
             self.consoleplainTextEdit.appendPlainText(f"\nRound Robin CPU 2:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
+            temp_truns = 0
+            temp_tat = 0
+            temp_wt = 0
             for i in range(len(runsRR)):
-                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}             {waitingRR_cpu2[i]}       "
-                                                          f"           {turnaroundRR_cpu2[i]}")
+                self.consoleplainTextEdit.appendPlainText(f"{runsRR[i]}             {waitingRR_cpu2[i]} ms    "
+                                                          f"           {turnaroundRR_cpu2[i]} ms")
+                temp_truns += runsRR[i]
+                temp_wt += waitingRR_cpu2[i]
+                temp_tat += turnaroundRR_cpu2[i]
+            temp_tat = temp_tat / temp_truns
+            temp_wt = temp_wt / temp_truns
+            self.consoleplainTextEdit.appendPlainText(f"\nAverage Turnaround Time: {temp_tat} ms\n"
+                                                      f"Average Waiting Time: {temp_wt} ms\n")
 
             self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First CPU 1:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
-
+            temp_truns = 0
+            temp_tat = 0
+            temp_wt = 0
             for i in range(len(runsSJF)):
-                self.consoleplainTextEdit.appendPlainText(f"{runsSJF[i]}             {waitingSJF[i]}       "
-                                                          f"           {turnaroundSJF[i]}")
+                self.consoleplainTextEdit.appendPlainText(f"{runsSJF[i]}             {waitingSJF[i]} ms    "
+                                                          f"           {turnaroundSJF[i]} ms")
+                temp_truns += runsSJF[i]
+                temp_wt += waitingSJF[i]
+                temp_tat += turnaroundSJF[i]
+            temp_tat = temp_tat / temp_truns
+            temp_wt = temp_wt / temp_truns
+            self.consoleplainTextEdit.appendPlainText(f"\nAverage Turnaround Time: {temp_tat} ms\n"
+                                                      f"Average Waiting Time: {temp_wt} ms\n")
 
             self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First CPU 2:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
-
+            temp_truns = 0
+            temp_tat = 0
+            temp_wt = 0
             for i in range(len(runsSJF)):
                 self.consoleplainTextEdit.appendPlainText(
-                    f"{runsSJF[i]}             {waitingSJF_cpu2[i]}       "
-                    f"           {turnaroundSJF_cpu2[i]}")
+                    f"{runsSJF[i]}             {waitingSJF_cpu2[i]} ms    "
+                    f"           {turnaroundSJF_cpu2[i]} ms")
+                temp_truns += runsSJF[i]
+                temp_wt += waitingSJF_cpu2[i]
+                temp_tat += turnaroundSJF_cpu2[i]
+            temp_tat = temp_tat / temp_truns
+            temp_wt = temp_wt / temp_truns
+            self.consoleplainTextEdit.appendPlainText(f"\nAverage Turnaround Time: {temp_tat} ms\n"
+                                                      f"Average Waiting Time: {temp_wt} ms\n")
 
             self.mplwidget.canvas.ax.plot(runsRR, waitingRR, label="Round Robin CPU 1 (waiting time)")
             self.mplwidget.canvas.ax.legend()
