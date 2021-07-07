@@ -43,65 +43,60 @@ class LoadBalancer(QObject):
             process_data = item[2]
             temp_quantum = item[3]
 
+            temp_cpu1_tat = 0
+            temp_cpu1_wt = 0
+            temp_cpu1_proc_total = 0
+            temp_cpu2_proc_total = 0
+            temp_cpu2_tat = 0
+            temp_cpu2_wt = 0
+            self.cpu1_speed = otherargs[0][0]
+            self.cpu2_speed = otherargs[0][1]
+
+            while len(process_data) != 0:
+                if self.stopRunning:
+                    return
+
+                cpu_1, cpu_2, process_data = self._load_balance(process_data)
+
+                if len(cpu_1) != 0:
+                    temp_cpu1_proc_total += len(cpu_1)
+                    tempworkercpu1 = ThreadWorker([temp_Algo_Mode, temp_runs, cpu_1, temp_quantum])
+                    tempProcessData += tempworkercpu1.completedProcessData
+                    if not temp_cpu1_tat:
+                        temp_cpu1_tat = tempworkercpu1.turnaround
+                    else:
+                        temp_cpu1_tat += tempworkercpu1.turnaround
+                    if not temp_cpu1_wt:
+                        temp_cpu1_wt = tempworkercpu1.waiting
+                    else:
+                        temp_cpu1_wt += tempworkercpu1.waiting
+                if len(cpu_2) != 0:
+                    temp_cpu2_proc_total += len(cpu_2)
+                    tempworkercpu2 = ThreadWorker([temp_Algo_Mode, temp_runs, cpu_2, temp_quantum])
+                    tempProcessData += tempworkercpu2.completedProcessData
+
+                    if not temp_cpu2_tat:
+                        temp_cpu2_tat = tempworkercpu2.turnaround
+                    else:
+                        temp_cpu2_tat += tempworkercpu2.turnaround
+                    if not temp_cpu2_wt:
+                        temp_cpu2_wt = tempworkercpu2.waiting
+                    else:
+                        temp_cpu2_wt += tempworkercpu2.waiting
+
+            temp_cpu1_tat = temp_cpu1_tat / temp_cpu1_proc_total
+            temp_cpu1_wt = temp_cpu1_wt / temp_cpu1_proc_total
+
+            cpumode = 0
             if otherargs[0][2] == 0:
-                temp_cpu1_tat = None
-                temp_cpu1_wt = None
-                temp_cpu1_proc_total = 0
-                temp_cpu2_proc_total = 0
-                temp_cpu2_tat = None
-                temp_cpu2_wt = None
-                self.cpu1_speed = otherargs[0][0]
-                self.cpu2_speed = otherargs[0][1]
-
-                while len(process_data) != 0:
-                    if self.stopRunning:
-                        return
-
-                    cpu_1, cpu_2, process_data = self._load_balance(process_data)
-
-                    if len(cpu_1) != 0:
-                        temp_cpu1_proc_total += len(cpu_1)
-                        tempworkercpu1 = ThreadWorker([temp_Algo_Mode, temp_runs, cpu_1, temp_quantum])
-                        tempProcessData += tempworkercpu1.completedProcessData
-                        if not temp_cpu1_tat:
-                            temp_cpu1_tat = tempworkercpu1.turnaround
-                        else:
-                            temp_cpu1_tat += tempworkercpu1.turnaround
-                        if not temp_cpu1_wt:
-                            temp_cpu1_wt = tempworkercpu1.waiting
-                        else:
-                            temp_cpu1_wt += tempworkercpu1.waiting
-                    if len(cpu_2) != 0:
-                        temp_cpu2_proc_total += len(cpu_2)
-                        tempworkercpu2 = ThreadWorker([temp_Algo_Mode, temp_runs, cpu_2, temp_quantum])
-                        tempProcessData += tempworkercpu2.completedProcessData
-
-                        if not temp_cpu2_tat:
-                            temp_cpu2_tat = tempworkercpu2.turnaround
-                        else:
-                            temp_cpu2_tat += tempworkercpu2.turnaround
-                        if not temp_cpu2_wt:
-                            temp_cpu2_wt = tempworkercpu2.waiting
-                        else:
-                            temp_cpu2_wt += tempworkercpu2.waiting
-
-                temp_cpu1_tat = temp_cpu1_tat / temp_cpu1_proc_total
-                temp_cpu1_wt = temp_cpu1_wt / temp_cpu1_proc_total
+                cpumode = 1
                 temp_cpu2_tat = temp_cpu2_tat / temp_cpu2_proc_total
                 temp_cpu2_wt = temp_cpu2_wt / temp_cpu2_proc_total
 
-                result_queue.put([temp_Algo_Mode, 1, temp_runs, temp_cpu1_wt, temp_cpu1_tat,
-                                  temp_cpu2_wt, temp_cpu2_tat])
-                self.update_result.emit([temp_Algo_Mode, 1, temp_runs, temp_cpu1_wt,
-                                         temp_cpu1_tat, temp_cpu2_wt, temp_cpu2_tat])
-
-            elif otherargs[0][2] == 1:
-                tempworker = ThreadWorker([temp_Algo_Mode, temp_runs, process_data, temp_quantum])
-
-                result_queue.put([tempworker.algo, 0, tempworker.runs, tempworker.waiting,
-                                  tempworker.turnaround])
-                self.update_result.emit([tempworker.algo, 0, tempworker.runs, tempworker.waiting,
-                                         tempworker.turnaround])
+            result_queue.put([temp_Algo_Mode, cpumode, temp_runs, temp_cpu1_wt, temp_cpu1_tat,
+                              temp_cpu2_wt, temp_cpu2_tat])
+            self.update_result.emit([temp_Algo_Mode, cpumode, temp_runs, temp_cpu1_wt,
+                                     temp_cpu1_tat, temp_cpu2_wt, temp_cpu2_tat])
 
             if result_queue.qsize() == otherargs[1]:
                 print("Finished Simulation")
