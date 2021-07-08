@@ -298,11 +298,14 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
 
         lowest_cpu_speed = None
 
-        if self.Cpu1SpinBox.value() < self.Cpu2SpinBox.value():
-            lowest_cpu_speed = self.Cpu1SpinBox.value()
-        elif self.Cpu1SpinBox.value() > self.Cpu2SpinBox.value():
-            lowest_cpu_speed = self.Cpu2SpinBox.value()
-        elif self.Cpu1SpinBox.value() == self.Cpu2SpinBox.value():
+        if not self.CpucheckBox.isChecked():
+            if self.Cpu1SpinBox.value() < self.Cpu2SpinBox.value():
+                lowest_cpu_speed = self.Cpu1SpinBox.value()
+            elif self.Cpu1SpinBox.value() > self.Cpu2SpinBox.value():
+                lowest_cpu_speed = self.Cpu2SpinBox.value()
+            elif self.Cpu1SpinBox.value() == self.Cpu2SpinBox.value():
+                lowest_cpu_speed = self.Cpu1SpinBox.value()
+        else:
             lowest_cpu_speed = self.Cpu1SpinBox.value()
 
         arrival_time_string = self.ArrivalTimesValueBox.toPlainText()
@@ -341,8 +344,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
                         if len(burst_time_string[i]) != self.ProcessesSpinBox.value() or burst_time_string[i][
                             j] == "" \
                                 or not burst_time_string[i][j].isdigit() \
-                                or (not self.CpucheckBox.isChecked() and int(burst_time_string[i][j]) >
-                                    lowest_cpu_speed):
+                                or int(burst_time_string[i][j]) > lowest_cpu_speed:
                             self.burst_error = True
                             break
             return False
@@ -361,7 +363,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             for j in range(len(burst_time_string[i])):
                 if len(burst_time_string[i]) != self.ProcessesSpinBox.value() or burst_time_string[i][j] == "" \
                         or not burst_time_string[i][j].isdigit() \
-                        or (not self.CpucheckBox.isChecked() and int(burst_time_string[i][j]) > lowest_cpu_speed):
+                        or int(burst_time_string[i][j]) > lowest_cpu_speed:
                     self.burst_error = True
                     checkok = False
                     break
