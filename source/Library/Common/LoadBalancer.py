@@ -62,36 +62,25 @@ class LoadBalancer(QObject):
                     temp_cpu1_proc_total += len(cpu_1)
                     tempworkercpu1 = ThreadWorker([temp_Algo_Mode, temp_runs, cpu_1, temp_quantum])
                     tempProcessData += tempworkercpu1.completedProcessData
-                    if not temp_cpu1_tat:
-                        temp_cpu1_tat = tempworkercpu1.turnaround
-                    else:
-                        temp_cpu1_tat += tempworkercpu1.turnaround
-                    if not temp_cpu1_wt:
-                        temp_cpu1_wt = tempworkercpu1.waiting
-                    else:
-                        temp_cpu1_wt += tempworkercpu1.waiting
+                    temp_cpu1_tat += tempworkercpu1.turnaround
+                    temp_cpu1_wt += tempworkercpu1.waiting
                 if len(cpu_2) != 0:
                     temp_cpu2_proc_total += len(cpu_2)
                     tempworkercpu2 = ThreadWorker([temp_Algo_Mode, temp_runs, cpu_2, temp_quantum])
                     tempProcessData += tempworkercpu2.completedProcessData
+                    temp_cpu2_tat += tempworkercpu2.turnaround
+                    temp_cpu2_wt += tempworkercpu2.waiting
 
-                    if not temp_cpu2_tat:
-                        temp_cpu2_tat = tempworkercpu2.turnaround
-                    else:
-                        temp_cpu2_tat += tempworkercpu2.turnaround
-                    if not temp_cpu2_wt:
-                        temp_cpu2_wt = tempworkercpu2.waiting
-                    else:
-                        temp_cpu2_wt += tempworkercpu2.waiting
-
-            temp_cpu1_tat = temp_cpu1_tat / temp_cpu1_proc_total
-            temp_cpu1_wt = temp_cpu1_wt / temp_cpu1_proc_total
+            if temp_cpu2_proc_total != 0:
+                temp_cpu1_tat = temp_cpu1_tat / temp_cpu1_proc_total
+                temp_cpu1_wt = temp_cpu1_wt / temp_cpu1_proc_total
 
             cpumode = 0
             if otherargs[0][2] == 0:
                 cpumode = 1
-                temp_cpu2_tat = temp_cpu2_tat / temp_cpu2_proc_total
-                temp_cpu2_wt = temp_cpu2_wt / temp_cpu2_proc_total
+                if temp_cpu2_proc_total != 0:
+                    temp_cpu2_tat = temp_cpu2_tat / temp_cpu2_proc_total
+                    temp_cpu2_wt = temp_cpu2_wt / temp_cpu2_proc_total
 
             result_queue.put([temp_Algo_Mode, cpumode, temp_runs, temp_cpu1_wt, temp_cpu1_tat,
                               temp_cpu2_wt, temp_cpu2_tat])

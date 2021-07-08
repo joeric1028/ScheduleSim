@@ -127,16 +127,16 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             if self.StaticAlgorithmRadio.isChecked():
                 quantum = random.randint(1, self.TimeQuantumSpinBox.maximum())
                 self.TimeQuantumSpinBox.setValue(quantum)
-                temp_min_cpu_speed = None
+                fastest_cpu_speed = None
 
                 if self.CpucheckBox.isChecked():
-                    temp_min_cpu_speed = self.Cpu1SpinBox.value()
+                    fastest_cpu_speed = self.Cpu1SpinBox.value()
                 elif self.Cpu1SpinBox.value() < self.Cpu2SpinBox.value():
-                    temp_min_cpu_speed = self.Cpu1SpinBox.value()
+                    fastest_cpu_speed = self.Cpu1SpinBox.value()
                 elif self.Cpu1SpinBox.value() > self.Cpu2SpinBox.value():
-                    temp_min_cpu_speed = self.Cpu2SpinBox.value()
+                    fastest_cpu_speed = self.Cpu2SpinBox.value()
                 elif self.Cpu1SpinBox.value() == self.Cpu2SpinBox.value():
-                    temp_min_cpu_speed = self.Cpu1SpinBox.value()
+                    fastest_cpu_speed = self.Cpu1SpinBox.value()
 
                 for i in range(testrun):
                     temprunsdataRR = []
@@ -146,8 +146,8 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
                         temp_dataRR = []
                         temp_dataSJF = []
                         process_id = j + 1
-                        arrival_time = random.randint(0, int(float(temp_min_cpu_speed) * 1.25))
-                        burst_time = random.randint(0, temp_min_cpu_speed)
+                        arrival_time = random.randint(0, int(float(fastest_cpu_speed) * 1.25))
+                        burst_time = random.randint(0, fastest_cpu_speed)
                         temp_dataRR.extend([process_id, arrival_time, burst_time, 0, burst_time])
                         temp_dataSJF.extend([process_id, arrival_time, burst_time, 0])
                         if self.ArrivalTimesValueBox.toPlainText() != "":
@@ -296,17 +296,17 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
         if self.RandomizedDataRadio.isChecked():
             return True
 
-        lowest_cpu_speed = None
+        fastest_cpu_speed = None
 
         if not self.CpucheckBox.isChecked():
             if self.Cpu1SpinBox.value() < self.Cpu2SpinBox.value():
-                lowest_cpu_speed = self.Cpu1SpinBox.value()
+                fastest_cpu_speed = self.Cpu1SpinBox.value()
             elif self.Cpu1SpinBox.value() > self.Cpu2SpinBox.value():
-                lowest_cpu_speed = self.Cpu2SpinBox.value()
+                fastest_cpu_speed = self.Cpu2SpinBox.value()
             elif self.Cpu1SpinBox.value() == self.Cpu2SpinBox.value():
-                lowest_cpu_speed = self.Cpu1SpinBox.value()
+                fastest_cpu_speed = self.Cpu1SpinBox.value()
         else:
-            lowest_cpu_speed = self.Cpu1SpinBox.value()
+            fastest_cpu_speed = self.Cpu1SpinBox.value()
 
         arrival_time_string = self.ArrivalTimesValueBox.toPlainText()
         arrival_time_string = arrival_time_string.split("\n\n")
@@ -344,7 +344,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
                         if len(burst_time_string[i]) != self.ProcessesSpinBox.value() or burst_time_string[i][
                             j] == "" \
                                 or not burst_time_string[i][j].isdigit() \
-                                or int(burst_time_string[i][j]) > lowest_cpu_speed:
+                                or int(burst_time_string[i][j]) > fastest_cpu_speed:
                             self.burst_error = True
                             break
             return False
@@ -363,7 +363,7 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             for j in range(len(burst_time_string[i])):
                 if len(burst_time_string[i]) != self.ProcessesSpinBox.value() or burst_time_string[i][j] == "" \
                         or not burst_time_string[i][j].isdigit() \
-                        or int(burst_time_string[i][j]) > lowest_cpu_speed:
+                        or int(burst_time_string[i][j]) > fastest_cpu_speed:
                     self.burst_error = True
                     checkok = False
                     break
