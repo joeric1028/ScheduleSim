@@ -10,8 +10,8 @@ class ThreadWorker:
         self.quantum = process[3]
         self.mode = mode
         self.completedProcessData = []
-        self.waiting = None
-        self.turnaround = None
+        self.waiting = 0
+        self.turnaround = 0
         self.worker = 0
         self.results = 0
 
