@@ -8,9 +8,9 @@ import time
 
 class ShortestJobFirst:
     def __init__(self):
-        self.__averageWaitingTime = 0.00
+        self.__averageWaitingTime = 0
         self.__totalWaitingTime = 0
-        self.__averageTurnAroundTime = 0.00
+        self.__averageTurnAroundTime = 0
         self.__totalTurnAroundTime = 0
         self.__start = 0
         self.__completedProcessData = []
@@ -93,7 +93,7 @@ class ShortestJobFirst:
             totalTurnAroundTime = totalTurnAroundTime + turnAroundTime
             processdata[i].append(turnAroundTime)
         if len(processdata) == 0:
-            self.__averageTurnAroundTime = 0.00
+            self.__averageTurnAroundTime = 0
             self.__totalTurnAroundTime = 0
             return
         self.__averageTurnAroundTime = totalTurnAroundTime / len(processdata)
@@ -113,7 +113,7 @@ class ShortestJobFirst:
             totalWaitingTime = totalWaitingTime + waitingTime
             processdata[i].append(waitingTime)
         if len(processdata) == 0:
-            self.__averageWaitingTime = 0.00
+            self.__averageWaitingTime = 0
             self.__totalWaitingTime = 0
             return
         self.__averageWaitingTime = totalWaitingTime / len(processdata)
