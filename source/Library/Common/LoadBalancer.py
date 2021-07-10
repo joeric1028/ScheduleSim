@@ -71,9 +71,12 @@ class LoadBalancer(QObject):
                     temp_cpu2_tat += tempworkercpu2.turnaround
                     temp_cpu2_wt += tempworkercpu2.waiting
 
-            if temp_cpu2_proc_total != 0:
+            if temp_cpu1_proc_total != 0:
                 temp_cpu1_tat = temp_cpu1_tat / temp_cpu1_proc_total
                 temp_cpu1_wt = temp_cpu1_wt / temp_cpu1_proc_total
+            else:
+                temp_cpu1_tat = 0.00
+                temp_cpu1_wt = 0.00
 
             cpumode = 0
             if otherargs[0][2] == 0:
@@ -81,6 +84,9 @@ class LoadBalancer(QObject):
                 if temp_cpu2_proc_total != 0:
                     temp_cpu2_tat = temp_cpu2_tat / temp_cpu2_proc_total
                     temp_cpu2_wt = temp_cpu2_wt / temp_cpu2_proc_total
+                else:
+                    temp_cpu2_tat = 0.00
+                    temp_cpu2_wt = 0.00
 
             result_queue.put([temp_Algo_Mode, cpumode, temp_runs, temp_cpu1_wt, temp_cpu1_tat,
                               temp_cpu2_wt, temp_cpu2_tat])

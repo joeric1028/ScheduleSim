@@ -8,9 +8,9 @@ import time
 
 class RoundRobin:
     def __init__(self):
-        self.__averageWaitingTime = 0
+        self.__averageWaitingTime = 0.00
         self.__totalWaitingTime = 0
-        self.__averageTurnAroundTime = 0
+        self.__averageTurnAroundTime = 0.00
         self.__totalTurnAroundTime = 0
         self.__totalProc = 0
         self.__waitList = []
@@ -152,7 +152,7 @@ class RoundRobin:
             totalTurnAroundTime = totalTurnAroundTime + turnAroundTime
             processdata[i].append(turnAroundTime)
         if len(processdata) == 0:
-            self.__averageTurnAroundTime = 0
+            self.__averageTurnAroundTime = 0.00
             self.__totalTurnAroundTime = 0
             return
         self.__averageTurnAroundTime = totalTurnAroundTime / len(processdata)
@@ -169,7 +169,7 @@ class RoundRobin:
             totalWaitingTime = totalWaitingTime + waitingTime
             processdata[i].append(waitingTime)
         if len(processdata) == 0:
-            self.__averageWaitingTime = 0
+            self.__averageWaitingTime = 0.00
             self.__totalWaitingTime = 0
             return
         self.__averageWaitingTime = totalWaitingTime / len(processdata)
