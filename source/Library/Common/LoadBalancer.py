@@ -106,7 +106,7 @@ class LoadBalancer(QObject):
             if cpu1_bt_total < self.cpu1_speed:
                 cpu1_bt_total += process_data[i][2]
                 if self.cpu1_speed < self.cpu2_speed:
-                    process_data[i][2] *= multiplier
+                    process_data[i][2] /= multiplier
                 cpu_1.append(process_data[i])
 
             elif cpu2_bt_total < self.cpu2_speed:
