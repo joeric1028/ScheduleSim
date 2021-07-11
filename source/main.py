@@ -705,6 +705,16 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             self.consoleplainTextEdit.appendPlainText(f"\nAverage Turnaround Time: {temp_tat} ms\n"
                                                       f"Average Waiting Time: {temp_wt} ms\n")
 
+            self.consoleplainTextEdit.appendPlainText(f"\nRound Robin Both CPU:\n\n"
+                                                      f"Run" + "Average Waiting Time".center(25)
+                                                      + "Average Turnaround Time".center(25))
+            for i in range(len(runsRR)):
+                self.consoleplainTextEdit.appendPlainText(
+                    f" {runsRR[i]}"
+                    f"{format(str(round(waitingRR[i] + waitingRR_cpu2[i], 2)) + ' ms').center(40)}"
+                    f"{format(str(round(turnaroundRR[i] + turnaroundRR_cpu2[i], 2)) + ' ms').center(40)}"
+                )
+
             self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First CPU 1:\n\n"
                                                       f"Run     Waiting Time        Turnaround Time")
             temp_truns = 0.00
@@ -745,6 +755,16 @@ class DesignerMainWindow(QMainWindow, UiMplMainWindow):
             temp_wt = round(temp_wt, 2)
             self.consoleplainTextEdit.appendPlainText(f"\nAverage Turnaround Time: {temp_tat} ms\n"
                                                       f"Average Waiting Time: {temp_wt} ms\n")
+
+            self.consoleplainTextEdit.appendPlainText(f"\nShortest Job First Both CPU:\n\n"
+                                                      f"Run" + "Average Waiting Time".center(25)
+                                                      + "Average Turnaround Time".center(25))
+            for i in range(len(runsRR)):
+                self.consoleplainTextEdit.appendPlainText(
+                    f" {runsRR[i]}"
+                    f"{format(str(round(waitingSJF[i] + waitingSJF_cpu2[i], 2)) + ' ms').center(40)}"
+                    f"{format(str(round(turnaroundSJF[i] + turnaroundSJF_cpu2[i], 2)) + ' ms').center(40)}"
+                )
 
             self.mplwidget.canvas.ax.plot(runsRR, waitingRR, label="Round Robin CPU 1 (waiting time)")
             self.mplwidget.canvas.ax.legend()
